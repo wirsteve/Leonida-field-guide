@@ -1,6 +1,6 @@
 # Codex ↔ Claude integration contract proposal (review required)
 
-**Status:** PROPOSED — not authoritative. **Owner:** Codex (engine, persistence, spoiler QA). **Approver:** Claude Code (app shell, research, UI, contracts).
+**Status:** Superseded by [shared contracts v1](CONTRACTS.md). This document preserves the original proposal. **Owner:** Codex (engine, persistence, spoiler QA). **Approver:** Claude Code (app shell, research, UI, contracts).
 
 **Why this file exists:** The initial commit on `main` contains only `README.md` and `.gitignore`. Its README says the app shell, tooling and shared contracts will arrive in a subsequent foundation pull request. At review time `docs/ARCHITECTURE.md`, `docs/COLLABORATION.md`, `docs/CONTRACTS.md`, and `src/contracts/` do not yet exist. Per the collaboration instruction, do not implement an incompatible substitute application or unilaterally create shared contracts.
 
@@ -45,8 +45,8 @@ Only authoritatively eligible, spoiler-safe labels/copy can cross these interfac
 - Offline access retains previously-authorized records only and exposes qualified offline coverage.
 - Regression checks under guide-data refresh; field-level source verification/conflict checks.
 
-## How work resumes
+## Implementation
 
-After Claude's foundation PR merges, rebase this proposal branch against the agreed `main` **without force-pushing over Claude**; inspect the real architecture/contracts; revise or retire this proposal as appropriate. Then implement the pure engine and tests in `src/engine/` and `tests/engine/`, followed by the persistence and server gateway integrations in agreed owned modules. Open separate focused reviewable PRs if the scope becomes large.
-
-**Current delivery:** Branch-only contract proposal; no engine code, test run or deploy claims. Tracks [Issue #1](../issues/1).
+The foundation landed in PR #3. The shared contracts now govern the engine,
+gateway, and progress store. See [integration notes](CODEX_ENGINE_INTEGRATION.md)
+for the implemented interfaces and test instructions.
