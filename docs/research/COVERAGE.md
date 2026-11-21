@@ -11,6 +11,7 @@ _Last checked: 2026-11-21, two days after launch._
 | Missable content / points of no return | Partly verified. Some "before you advance" advice comes from a single page |
 | Collectibles | Not yet researched to standard. No collectible records are shipped |
 | Official 100% checklist | Not published by Rockstar; fan checklists conflict. Not shipped |
+| "Try this" stunts | 11 post-launch, community-discovered stunts. Each was checked against the trophy and 100% lists. Confidence is shown per stunt; two are player reports only |
 | Later chapters | Not researched yet. The guide shows nothing past your current progress anyway |
 
 Because coverage isn't complete, the guide reports **"Not fully verified"** instead of **"Safe to advance"** for now. That's deliberate: a missing warning isn't evidence that it's safe.

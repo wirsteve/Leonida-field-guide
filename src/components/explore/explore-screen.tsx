@@ -105,12 +105,14 @@ export function ExploreScreen() {
       )}
 
       <div className="mt-7 space-y-8">
-        {tryThis.length > 0 && <TryThisSection items={tryThis} />}
-        {CATEGORIES.map((cat) => {
+        {CATEGORIES.map((cat, index) => {
           const items = visible.filter((r) => cat.kinds.includes(r.kind) && (cat.test ? cat.test(r) : true));
-          if (items.length === 0) return null;
+          // Progress-related optional missions first, then the fun stuff.
+          const fun = index === 0 && tryThis.length > 0 ? <TryThisSection items={tryThis} /> : null;
+          if (items.length === 0) return fun ? <div key="try-this">{fun}</div> : null;
           return (
-            <section key={cat.title}>
+            <div key={cat.title} className="space-y-8">
+            <section>
               <SectionLabel>{cat.title}</SectionLabel>
               <ul className="divide-y divide-rule overflow-hidden rounded-[var(--radius-card)] border border-rule">
                 {items.map((r) => (
@@ -118,6 +120,8 @@ export function ExploreScreen() {
                 ))}
               </ul>
             </section>
+            {fun}
+            </div>
           );
         })}
         {evaluation && visible.length === 0 && (

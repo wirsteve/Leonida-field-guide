@@ -2,6 +2,7 @@ import "server-only";
 import type { GuideDataset } from "@/contracts";
 import { chapter2Records } from "./chapter2";
 import { CH1_LAST, stages, storyRecords } from "./story";
+import { tryThisRecords } from "./try-this";
 
 /**
  * Authored guide dataset — SERVER-ONLY (owner: Claude).
@@ -11,7 +12,7 @@ import { CH1_LAST, stages, storyRecords } from "./story";
  * Validate with `npm run content:validate`.
  */
 const dataset: GuideDataset = {
-  contentVersion: "2026.11.21-ch2",
+  contentVersion: "2026.11.21-ch2.1",
   generatedOn: "2026-11-21",
   coverageNote:
     "Researched from guide pages checked on Nov 21, 2026, two days after launch. Chapter 2 is mostly verified, but sources still disagree on a few points, so the guide won't call anything fully safe yet.",
@@ -19,7 +20,7 @@ const dataset: GuideDataset = {
     { id: "port-gellhorn", label: "Port Gellhorn", visibleWhen: { completed: CH1_LAST } },
     { id: "kelly-county", label: "Kelly County", visibleWhen: { completed: CH1_LAST } },
   ],
-  records: [...stages, ...storyRecords, ...chapter2Records],
+  records: [...stages, ...storyRecords, ...chapter2Records, ...tryThisRecords],
 };
 
 export function loadGuideDataset(): GuideDataset {
