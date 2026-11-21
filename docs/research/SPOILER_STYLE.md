@@ -12,6 +12,12 @@ Every string in `PublicContent`, stage editorial and recommendation copy must pa
 | "You don't need to grind money right now." | "You'll get a big payout soon." |
 | "Safe to leave for later." | "This unlocks again after the heist." |
 
+## Titles
+
+- **Story missions:** the real title is withheld until the player completes the mission. Before that, the gateway shows the neutral label ("Continue the story"). Exception: errand-style steps whose titles only describe the visible task (`nameSafeBeforeStart`).
+- **Optional missions and activities:** their names are shown as soon as they unlock. If the official title reveals what happens (a twist, a reward, who gets hurt), author a neutral label as the public `name` ("Billy's next job") and record the canonical title in `TITLE_NOTES` (server-only). The leak test fails if a withheld title ever reaches a response.
+- When in doubt, use a neutral label. The player can still find the mission from the Check Before Starting list.
+
 Checklist for each string:
 1. It names no mission, character, location, vehicle, item or reward the player hasn't already been shown.
 2. It gives no reason grounded in future events: no "because", "before X happens", "you'll lose", "won't be able to return".

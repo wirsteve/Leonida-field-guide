@@ -12,6 +12,7 @@
 import { describe, expect, it } from "vitest";
 import type { GuideRecord, ProgressSnapshot, Requirement } from "@/contracts";
 import { loadGuideDataset } from "@/content/guide";
+import { TITLE_NOTES } from "@/content/guide/chapter2";
 import { evaluateGuide } from "@/server/guide/evaluate";
 import { checkMission, identifyMission, suggestMissions } from "@/server/guide/missions";
 
@@ -70,6 +71,8 @@ function forbidden(snapshot: ProgressSnapshot): { needle: string; why: string }[
       if (e.supports.length > 20) out.push({ needle: e.supports.toLowerCase(), why: `evidence claim of ${record.id}` });
     }
   }
+  // Canonical titles we deliberately withhold are never projected, at any point.
+  for (const [id, title] of Object.entries(TITLE_NOTES)) out.push({ needle: title.toLowerCase(), why: `withheld canonical title of ${id}` });
   for (const area of dataset.areas) if (!meets(area.visibleWhen, done)) add(area.label, `ineligible area ${area.id}`);
   return out;
 }

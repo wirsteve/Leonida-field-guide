@@ -193,7 +193,11 @@ const OPTIONAL_KINDS = new Set<PublicGuideRecord["kind"]>(["side-mission", "acti
 
 function OptionalStep({ onNext }: { onNext: () => void }) {
   const { evaluation, apply, state } = useGuide();
-  const items = (evaluation?.records ?? []).filter((r) => OPTIONAL_KINDS.has(r.kind) && r.status !== "closed");
+  // Optional content, plus story steps whose names are safe to show (side errands
+  // the identify step can't infer). Withheld story missions are never listed.
+  const items = (evaluation?.records ?? []).filter(
+    (r) => r.status !== "closed" && (OPTIONAL_KINDS.has(r.kind) || (r.kind === "story-mission" && !r.nameWithheld && r.status !== "completed")),
+  );
 
   async function set(record: PublicGuideRecord, mark: ProgressMark) {
     if (record.kind === "contact" || record.kind === "location") {

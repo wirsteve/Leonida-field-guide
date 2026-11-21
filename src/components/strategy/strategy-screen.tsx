@@ -31,7 +31,7 @@ const VERIFICATION_COPY = {
 export function StrategyScreen() {
   const { evaluation } = useGuide();
   const stage = evaluation?.strategy.stage ?? evaluation?.stage ?? null;
-  const sections = [...(evaluation?.strategy.sections ?? [])].sort((a, b) => ORDER.indexOf(a.kind) - ORDER.indexOf(b.kind));
+  const sections = regroup(evaluation).sort((a, b) => ORDER.indexOf(a.kind) - ORDER.indexOf(b.kind));
   const populated = sections.filter((s) => s.items.length > 0);
   const empty = sections.filter((s) => s.items.length === 0);
 
@@ -80,6 +80,27 @@ export function StrategyScreen() {
       {!stage && evaluation && <VerificationNote className="mt-8">{evaluation.coverageNote}</VerificationNote>}
     </main>
   );
+}
+
+/**
+ * Presentation-only regrouping: money methods move out of "Recommended order"
+ * into their own Money section, ordered by the engine's money ranking.
+ */
+function regroup(evaluation: ReturnType<typeof useGuide>["evaluation"]): StrategySection[] {
+  if (!evaluation) return [];
+  const kindOf = new Map(evaluation.records.map((r) => [r.id, r.kind]));
+  const isMoney = (id?: string) => (id ? kindOf.get(id) === "money-method" : false);
+  const sections = evaluation.strategy.sections.map((section) =>
+    section.kind === "recommended-order" ? { ...section, items: section.items.filter((i) => !isMoney(i.recordId)) } : section,
+  );
+  const money = evaluation.money.methodIds
+    .map((id) => evaluation.records.find((r) => r.id === id))
+    .filter((r): r is NonNullable<typeof r> => Boolean(r))
+    .map((r) => ({ recordId: r.id, title: r.name, body: r.guidance }));
+  if (!sections.some((s) => s.kind === "money")) {
+    sections.push({ kind: "money", title: "Money", emptyText: "No verified earning method yet.", items: money });
+  }
+  return sections;
 }
 
 function Section({ section, index }: { section: StrategySection; index: number }) {

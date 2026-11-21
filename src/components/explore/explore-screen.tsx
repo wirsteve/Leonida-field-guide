@@ -49,7 +49,7 @@ function matches(record: PublicGuideRecord, filter: Filter, area: string | null)
     case "done":
       return record.status === "completed";
     default:
-      return record.status !== "closed";
+      return record.status !== "closed" && record.timing !== "later-better";
   }
 }
 
@@ -60,7 +60,7 @@ export function ExploreScreen() {
 
   const records = useMemo(() => (evaluation?.records ?? []).filter((r) => EXPLORE_KINDS.has(r.kind)), [evaluation]);
   const visible = records.filter((r) => matches(r, filter, area));
-  const unique = records.filter((r) => r.uniqueExperience && r.status === "completed").length;
+  const unique = evaluation?.progress.uniqueExperienced ?? 0;
   const official = records.filter((r) => r.officialCompletion === "yes" && r.status === "completed").length;
 
   return (

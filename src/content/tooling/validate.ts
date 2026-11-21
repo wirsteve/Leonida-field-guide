@@ -29,9 +29,17 @@ const BANNED_PHRASES: RegExp[] = [
   /\bfinal (?:mission|chapter)\b/i,
   /\bpoint of no return\b/i,
   /\bthe story (?:moves|takes)\b/i,
-  /\bchapter \d+\b/i,
-  /\bchapter (?:three|four|five)\b/i,
+  /\bchapter (?:three|four|five|six|seven)\b/i,
 ];
+
+/** "Chapter N" mentions are only allowed up to the record's own chapter. */
+function laterChapterMention(text: string, ownChapter: number): number | null {
+  for (const match of text.matchAll(/\bchapter\s+0*(\d+)\b/gi)) {
+    const n = Number(match[1]);
+    if (n > ownChapter) return n;
+  }
+  return null;
+}
 
 function requirementIds(req: Requirement, out: Set<string> = new Set()): Set<string> {
   if ("completed" in req) out.add(req.completed);
@@ -128,6 +136,8 @@ export function validateDataset(input: unknown): { dataset: GuideDataset | null;
       at("story missions and stages need sequence and chapter");
     }
     if (record.kind === "stage" && !("editorial" in record && record.editorial)) at("stage record missing editorial");
+    // Ids reach the client even when a story mission's name is withheld, so they must be opaque.
+    if (record.kind === "story-mission" && !/^story-\d+$/.test(record.id)) at('story mission ids must be opaque ("story-<n>")');
     if (record.expiresWhen && !record.public.lastChanceCopy) at("expiring record should provide lastChanceCopy", "warning");
     if (record.public.money?.payout && record.evidence.length === 0) at("payout stated without evidence");
 
@@ -137,6 +147,12 @@ export function validateDataset(input: unknown): { dataset: GuideDataset | null;
       for (const pattern of BANNED_PHRASES) if (pattern.test(text)) at(`spoiler lint: "${text}" matches ${pattern}`);
     }
     const horizon = reached(record);
+    const horizonStory = [...storySeq].filter(([, seq]) => seq <= horizon).sort((a, b) => b[1] - a[1])[0];
+    const ownChapter = record.chapter ?? (horizonStory ? byId.get(horizonStory[0])?.chapter : undefined) ?? 1;
+    for (const text of strings) {
+      const later = laterChapterMention(text, ownChapter);
+      if (later !== null) at(`spoiler lint: "${text}" mentions chapter ${later}`);
+    }
     const nameStrings = [record.public.name, ...record.public.aliases, ...strings];
     for (const [storyId, seq] of storySeq) {
       if (storyId === record.id || seq <= horizon) continue;

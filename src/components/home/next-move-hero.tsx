@@ -43,7 +43,7 @@ export function NextMoveHero({ move }: { move: Recommendation }) {
         </h2>
         <p className="mt-3 max-w-[38ch] text-[1.025rem] leading-relaxed text-ivory-2">{move.body}</p>
 
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="mt-5 grid gap-2 min-[370px]:grid-cols-2">
           {canComplete ? (
             <Button variant="primary" size="lg" onClick={() => mark(record, "complete")}>
               <Check size={18} aria-hidden /> Mark complete
@@ -57,7 +57,7 @@ export function NextMoveHero({ move }: { move: Recommendation }) {
           )}
           <Link
             href="/strategy"
-            className="tap inline-flex min-h-12 items-center gap-2 rounded-full bg-ivory/8 px-5 text-[0.95rem] text-ivory ring-1 ring-inset ring-rule-strong hover:bg-ivory/12"
+            className="tap inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-ivory/8 px-4 text-[0.95rem] text-ivory ring-1 ring-inset ring-rule-strong hover:bg-ivory/12"
           >
             View strategy
           </Link>

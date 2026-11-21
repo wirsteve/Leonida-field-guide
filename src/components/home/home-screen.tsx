@@ -15,7 +15,7 @@ import { ExploreTeaser, MoneySnapshot } from "./snapshots";
 export function HomeScreen() {
   const { evaluation, state } = useGuide();
   const onboarded = state?.onboarding.status === "complete";
-  const queue = evaluation ? evaluation.queue.filter((q) => q.id !== evaluation.nextBestMove?.id && q.priority !== "wait").slice(0, 4) : [];
+  const queue = evaluation ? evaluation.queue.filter((q) => q.id !== evaluation.nextBestMove?.id && q.priority !== "wait" && q.kind !== "money").slice(0, 4) : [];
 
   return (
     <main className="page">

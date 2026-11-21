@@ -119,7 +119,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-ink/40 px-2.5 py-2">
       <dt className="text-[0.6875rem] uppercase tracking-wider text-ivory-3">{label}</dt>
-      <dd className="mt-0.5 capitalize text-ivory">{value}</dd>
+      <dd className="mt-0.5 text-ivory first-letter:uppercase">{value}</dd>
     </div>
   );
 }
