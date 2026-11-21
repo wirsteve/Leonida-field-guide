@@ -8,17 +8,25 @@ import { REVIEWED, cite, gb, ppx } from "./sources";
  * from what PowerPyx/GTABase pages actually state (see restricted research).
  */
 
-const after = (...ids: string[]): Requirement => (ids.length === 1 ? { completed: ids[0] } : { all: ids.map((completed) => ({ completed })) });
+export const after = (...ids: string[]): Requirement => (ids.length === 1 ? { completed: ids[0] } : { all: ids.map((completed) => ({ completed })) });
 
-function story(
+export function story(
   id: string,
   sequence: number,
   chapter: number,
   name: string,
   visibleWhen: Requirement,
-  extra: Partial<GuideRecord> & { summary?: string; guidance?: string; aliases?: string[]; nameSafeBeforeStart?: boolean; saveBeforeStarting?: boolean; tips?: string[] } = {},
+  extra: Partial<GuideRecord> & {
+    summary?: string;
+    guidance?: string;
+    aliases?: string[];
+    nameSafeBeforeStart?: boolean;
+    saveBeforeStarting?: boolean;
+    tips?: string[];
+    area?: string;
+  } = {},
 ): GuideRecord {
-  const { summary, guidance, aliases, nameSafeBeforeStart, saveBeforeStarting, tips, ...rest } = extra;
+  const { summary, guidance, aliases, nameSafeBeforeStart, saveBeforeStarting, tips, area, ...rest } = extra;
   return {
     id,
     kind: "story-mission",
@@ -30,7 +38,7 @@ function story(
       name,
       aliases: aliases ?? [],
       summary: summary ?? "A main story mission.",
-      area: chapter === 2 ? "port-gellhorn" : undefined,
+      area: area ?? (chapter === 2 ? "port-gellhorn" : undefined),
       tags: ["story"],
       uniqueExperience: true,
       officialCompletion: "unknown",
@@ -186,7 +194,7 @@ const chapter2: GuideRecord[] = [
 ];
 
 // ── Stages (chapter-strategy editorial) ─────────────────────────────────────
-function stage(id: string, sequence: number, chapter: number, visibleWhen: Requirement, editorial: StageRecord["editorial"]): StageRecord {
+export function stage(id: string, sequence: number, chapter: number, visibleWhen: Requirement, editorial: StageRecord["editorial"]): StageRecord {
   return {
     id,
     kind: "stage",

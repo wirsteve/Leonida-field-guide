@@ -79,8 +79,10 @@ describe("guide gateway (synthetic dataset)", () => {
     expect(suggestMissions(dataset, { snapshot: progress, query: future.public.name })).toEqual({ suggestions: [] });
     expect(checkMission(dataset, progress, { recordId: future.id }))
       .toEqual(checkMission(dataset, progress, { query: "Unknown input" }));
-    expect(identifyMission(dataset, { snapshot: progress, query: future.public.name }))
-      .toEqual({ matched: null, impliedComplete: [] });
+    // Identify (onboarding only) accepts an exact title the player typed; a near-miss
+    // stays identical to unknown input.
+    expect(identifyMission(dataset, { snapshot: progress, query: `${future.public.name}x` }))
+      .toEqual(identifyMission(dataset, { snapshot: progress, query: "Unknown input" }));
   });
 
   it("requires exact, unambiguous identification and never invents earlier completion", () => {
@@ -196,7 +198,7 @@ it("reconciles an exact verified alias for a visible neutral mission without dis
     ...mission,
     public: { ...mission.public, nameSafeBeforeStart: false, aliases: ["synthetic informal alias"] },
   };
-  const other = { ...future, public: { ...future.public, aliases: ["synthetic hidden alias"] } };
+  const other = { ...future, public: { ...future.public, nameSafeBeforeStart: false, aliases: ["synthetic hidden alias"] } };
   const dataset = data(neutral, other);
   const query = "synthetic informal alias";
 
@@ -205,8 +207,29 @@ it("reconciles an exact verified alias for a visible neutral mission without dis
     impliedComplete: [neutral.id],
   });
   expect(suggestMissions(dataset, { snapshot: progress, query })).toEqual({ suggestions: [] });
-  expect(identifyMission(dataset, { snapshot: progress, query: "synthetic hidden alias" }))
-    .toEqual({ matched: null, impliedComplete: [] });
+  // Contract v1: an exact alias identifies a mission the player says they completed even
+  // before it is eligible (returning players), without disclosing its withheld title.
+  expect(identifyMission(dataset, { snapshot: progress, query: "synthetic hidden alias" })).toEqual({
+    matched: { recordId: other.id, name: "Story mission" },
+    impliedComplete: [other.id, neutral.id],
+  });
+  expect(suggestMissions(dataset, { snapshot: progress, query: "synthetic hidden alias" })).toEqual({ suggestions: [] });
   expect(identifyMission(dataset, { snapshot: progress, query: "synthetic informal" }))
     .toEqual({ matched: null, impliedComplete: [] });
+});
+
+it("identifies a returning player's last mission from an empty snapshot by exact title", () => {
+  const hidden: GuideRecord = { ...future, public: { ...future.public, nameSafeBeforeStart: false } };
+  expect(identifyMission(data(mission, hidden), { snapshot: progress, query: "  SYNTHETIC secret FUTURE title " })).toEqual({
+    matched: { recordId: hidden.id, name: "Synthetic secret future title" },
+    impliedComplete: [hidden.id, mission.id],
+  });
+});
+
+it("answers near-misses of real titles exactly like gibberish", () => {
+  const dataset = data(mission, future);
+  const miss = JSON.stringify(identifyMission(dataset, { snapshot: progress, query: "zzqx" }));
+  for (const query of ["Synthetic secret future", "synthetic secret future titl", "Synthetic secret future title!"]) {
+    expect(JSON.stringify(identifyMission(dataset, { snapshot: progress, query }))).toBe(miss);
+  }
 });

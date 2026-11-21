@@ -11,14 +11,14 @@ It answers one question: **"Given exactly where I am right now, what's the smart
 - **App:** all five tabs (Home, Strategy, Money, Explore, Journal), plus Check Before Starting, one-tap completion with undo, onboarding with one-tap starting points, backup and import, and offline shell. Installable on iPhone.
 - **Try this:** 11 viral, community-discovered stunts in Explore (ATM yank, plane pinball, and more), each with sources and a confidence label. Not missions, not 100%.
 - **Engine, persistence and gateway** (Codex): integrated. Progress lives in IndexedDB on your device, and guide content is filtered server-side for your progress.
-- **Content:** Chapters 1–2, verified against guide pages read on Nov 21, 2026. See [`docs/research/COVERAGE.md`](docs/research/COVERAGE.md) for what is and isn't covered.
+- **Content:** the whole game, from the prologue through the finale and the post-game: 267 researched records verified against guide pages read on Nov 21, 2026. That covers story, side questlines, money, points of no return, the 100% checklist, all 55 trophies and viral stunts. See [`docs/research/COVERAGE.md`](docs/research/COVERAGE.md).
 - **Install on iPhone:** see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 ### Known limitations
 - The guide can't read your console save. It knows only what you record.
 - Research is two days post-launch. Where sources disagree, the guide says "Not fully verified" rather than "Safe to advance".
-- Collectibles and the official 100% checklist aren't shipped yet; no reliable source exists.
-- Onboarding: use a one-tap starting point (after the breakfast stickup, or after Chapter 1). Typing a mission name only recognizes the mission right after what you've recorded. Codex owns that lookup and kept it eligibility-only.
+- Collectible locations aren't mapped (totals and tips only); sources haven't finished them yet.
+- Onboarding: pick a one-tap starting point (your milestone or any chapter), or type the last mission you finished. Any exact title or verified nickname works.
 - Optional missions whose real titles give things away show as **"Spoiler"**.
 
 ## Develop

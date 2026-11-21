@@ -29,7 +29,7 @@ const CATEGORIES: { title: string; kinds: RecordKind[]; test?: (r: PublicGuideRe
   { title: "Races", kinds: ["race"] },
   { title: "Encounters", kinds: ["encounter"] },
   { title: "Places", kinds: ["location"] },
-  { title: "Collectibles", kinds: ["collectible-set"] },
+  { title: "Collectibles & 100% checklist", kinds: ["collectible-set"] },
   { title: "Vehicles & equipment", kinds: ["vehicle", "equipment"] },
   { title: "Trophies", kinds: ["achievement"] },
 ];

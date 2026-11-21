@@ -1,17 +1,16 @@
 # Research coverage (spoiler-free)
 
-_Last checked: 2026-11-21, two days after launch._
+_Last checked: 2026-11-21, two days after launch. About 300 guide pages read directly (PowerPyx, Game8, GTABase, Push Square, PC Gamer, GamesRadar, Game Rant, Rockstar)._
 
 | Area | Status |
 |---|---|
-| Chapter 1 mission list | Verified (four sources agree on 22 titles and their order) |
-| Chapter 2 story missions and gating | Mostly verified. Exact prerequisites for a few steps aren't stated by any source |
-| Chapter 2 optional jobs | Verified, except one sources disagree on whether it's required |
-| Money methods available now | Verified. Payouts only where a page states them; one cooldown is disputed |
-| Missable content / points of no return | Partly verified. Some "before you advance" advice comes from a single page |
-| Collectibles | Not yet researched to standard. No collectible records are shipped |
-| Official 100% checklist | Not published by Rockstar; fan checklists conflict. Not shipped |
-| "Try this" stunts | 11 post-launch, community-discovered stunts. Each was checked against the trophy and 100% lists. Confidence is shown per stunt; two are player reports only |
-| Later chapters | Not researched yet. The guide shows nothing past your current progress anyway |
+| Story missions, every chapter through the finale | Verified. 4+ outlets agree on titles and order. Unlock rules follow what walkthrough pages state. A handful of minor steps rest on one source |
+| Points of no return and "do this first" moments | Covered for every chapter. Some rest on a single source and are labeled with their confidence |
+| Optional missions and stranger questlines | Chapters 1–4 (Chapter 5 adds none). Titles that give things away show as "Spoiler" |
+| Money methods, fences and buyers | Every chapter. Payouts appear only where a page states them; ranges and conflicts are noted |
+| Official 100% checklist | All countable lines, with needed vs. total |
+| Trophies | All 55. Story trophies appear only once you've earned them |
+| "Try this" stunts | 11 post-launch community discoveries, each with its own confidence |
+| Collectible locations | Totals and tips only. Location-by-location maps are still incomplete at every source |
 
-Because coverage isn't complete, the guide reports **"Not fully verified"** instead of **"Safe to advance"** for now. That's deliberate: a missing warning isn't evidence that it's safe.
+The guide reports **"Not fully verified"** instead of **"Safe to advance"** while sources still disagree on details. That's deliberate: a missing warning isn't evidence that it's safe.
