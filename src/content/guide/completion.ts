@@ -79,12 +79,17 @@ const CHECKLIST: ChecklistItem[] = [
   { id: "c-gang-ops", name: "Gang operations cleared", needed: 39, total: 39, summary: "Clear gang hideouts, including all their key valuables.", gate: { always: true }, tips: ["Cleared hideouts slowly fill back up, so you can return for more loot."] },
   { id: "c-stick-ups", name: "Stick-ups", needed: 50, total: 91, summary: "Rob convenience stores, fast-food joints and liquor stores.", gate: { always: true } },
   { id: "c-smash-grabs", name: "Smash 'n' grabs", needed: 34, total: 35, summary: "Pawn shops and jewelers. Loot the safe too.", gate: { mission: "Coffee Break" } },
+  { id: "c-bank-jobs", name: "Bank jobs", needed: 22, total: 22, summary: "Small and large bank robberies, done fully.", gate: { mission: "Credit Check" } },
+  { id: "c-payday-loans", name: "Payday loan jobs", needed: 7, total: 7, summary: "Rob every payday loan store.", gate: { mission: "Credit Check" } },
+  { id: "c-vaults", name: "Bank vaults", needed: 8, total: 8, summary: "Hit every bank vault.", gate: { mission: "VCIA Takedown" } },
 ];
 
 /** Dollar-amount checklist lines (tracked by hand in the Journal). */
 const FENCED: { id: string; name: string; summary: string; gate: Gate }[] = [
   { id: "c-fence-narcotics", name: "Fence $100,000 of narcotics", summary: "Running total of narcotics sold to fences.", gate: { always: true } },
   { id: "c-fence-vehicles", name: "Fence $200,000 of vehicles", summary: "Running total of stolen cars sold.", gate: { mission: "Moses" } },
+  { id: "c-fence-jewelry", name: "Fence $100,000 of jewelry", summary: "Running total of jewelry sold to fences.", gate: { mission: "Boobie Time" } },
+  { id: "c-fence-bills", name: "Fence $250,000 of marked bills", summary: "Running total of marked bills fenced.", gate: { mission: "Credit Check" } },
 ];
 
 function resolveGate(gate: Gate, storyByName: Map<string, string>): Requirement {
@@ -197,6 +202,30 @@ const TROPHIES: Trophy[] = [
   { id: "t-personal-best", name: "Personal Best", tier: "Bronze", how: "Max out strength on both characters.", gate: { mission: "Coffee Break" }, confidence: "medium" },
   { id: "t-little-boxes", name: "Little Boxes", tier: "Bronze", how: "Buy all eight garages from the real estate app.", gate: { mission: "Daily Driver" }, tips: ["About $160,000 in total. Not a priority while cash is tight."] },
   { id: "t-on-the-spot", name: "On the Spot", tier: "Bronze", how: "Register ten vehicles.", gate: { mission: "Moses" }, tips: ["You'll need enough garage space for them."] },
+  // Later story trophies: visible once earned (or once the chapter title the game shows is on screen).
+  { id: "t-story-3", name: "T**s Ass Drug Money", tier: "Bronze", how: "Story progress.", gate: { mission: "Checking Out" } },
+  { id: "t-story-4", name: "Vice City, Baby!", tier: "Bronze", how: "Story progress.", gate: { mission: "The Cartel Heist" } },
+  { id: "t-story-5", name: "Top Of The World, Ma", tier: "Bronze", how: "Story progress.", gate: { mission: "Starting From Zero" } },
+  { id: "t-story-final", name: "You Gotta Know When to Get Off", tier: "Gold", how: "Story progress.", gate: { mission: "The End of the Road" } },
+  { id: "t-break-bank", name: "Break the Bank", tier: "Bronze", how: "Story progress.", gate: { mission: "The Cartel Heist" } },
+  { id: "t-family-matters", name: "Family Matters", tier: "Bronze", how: "Story progress.", gate: { mission: "Child's Play" } },
+  { id: "t-dwnfall", name: "DWNFALL", tier: "Bronze", how: "Story progress.", gate: { mission: "Headliners" } },
+  { id: "t-hijacked", name: "Hi-Jacked", tier: "Bronze", how: "Story progress.", gate: { mission: "VCIA Takedown" } },
+  { id: "t-snow-storm", name: "Snow Storm", tier: "Bronze", how: "Story progress.", gate: { mission: "Operation Savage Glory" } },
+  // Later side and misc trophies, gated on when they become possible.
+  { id: "t-rehab", name: "Road to Rehabilitation", tier: "Bronze", how: "Finish a stranger's questline that Lucia can take on in the city.", gate: { mission: "Welcome to Vice City" }, confidence: "medium" },
+  { id: "t-supply-demand", name: "Supply & Demand", tier: "Bronze", how: "Deliver every car on the car buyer's wish list.", gate: { mission: "Steal the Zorrusso for Randy" } },
+  { id: "t-spin-on-this", name: "Spin On This!", tier: "Bronze", how: "Finish Tyrone's questline.", gate: { mission: "Here, Kitty Kitty" } },
+  { id: "t-sneakthief", name: "Sneakthief", tier: "Bronze", how: "Rob a jewelry store without being detected.", gate: { mission: "Boobie Time" }, confidence: "medium", tips: ["Use the back door, get the safe code, wipe the footage and kill the alarm."] },
+  { id: "t-max-withdrawal", name: "Maximum Withdrawal", tier: "Silver", how: "Rob five bank vaults and escape.", gate: { mission: "VCIA Takedown" } },
+  { id: "t-blitz", name: "A Classic Blitz Play", tier: "Bronze", how: "Rob an armored truck and get away.", gate: { mission: "Welcome to Vice City" }, confidence: "medium" },
+  { id: "t-capital-offense", name: "Capital Offense", tier: "Bronze", how: "Steal the showroom car on display and drive it out through the window.", gate: { mission: "Steal the Zorrusso for Randy" }, confidence: "medium" },
+  { id: "t-bad-luck", name: "Bad Luck, I Guess", tier: "Bronze", how: "As Lucia, alone, rob a certain payday loan store again and escape on foot.", gate: { mission: "Credit Check" }, confidence: "medium" },
+  { id: "t-dime", name: "Dime on the Dollar", tier: "Bronze", how: "Fence $250,000 of marked bills in total.", gate: { mission: "Credit Check" } },
+  { id: "t-catch-me", name: "Catch Me If You Can", tier: "Bronze", how: "Steal a passenger jet from an airport boarding bridge and fly it well away.", gate: { always: true }, confidence: "medium" },
+  { id: "t-tank", name: "Challenging Tank", tier: "Bronze", how: "Steal a tank from the military base and fight from it.", gate: { always: true }, confidence: "medium" },
+  { id: "t-in-the-beginning", name: "In The Beginning…", tier: "Bronze", how: "Order a certain drink at a rooftop bar.", gate: { always: true }, confidence: "medium", tips: ["Try an apple martini at an oceanfront rooftop bar."] },
+  { id: "t-truth", name: "The Truth Is Out There", tier: "Bronze", how: "Witness a hidden secret event.", gate: { always: true }, confidence: "low", verification: "conflicted", notes: "PowerPyx: UFO event NW of Starlet Motel after 2 AM, solo. Game8: ritual in a north Capri warehouse." },
 ];
 
 const TIER_TAG: Record<Tier, string> = { Platinum: "platinum", Gold: "gold", Silver: "silver", Bronze: "bronze" };
