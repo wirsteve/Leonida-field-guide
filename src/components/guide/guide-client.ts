@@ -48,17 +48,31 @@ export function snapshotKey(snapshot: ProgressSnapshot): string {
  * a server response (already filtered), so it can never widen eligibility.
  * Stored in localStorage: this is a view cache, not progress.
  */
-const CACHE_KEY = "lfg:last-evaluation:v1";
+const CACHE_KEY = "lfg:last-evaluation:v2";
 
+/** An evaluation bound to the exact snapshot the server authorized it for. */
 export interface CachedEvaluation {
   key: string;
+  snapshot: ProgressSnapshot;
   evaluation: EvaluateResponse;
+}
+
+/**
+ * True when `current` progress includes everything `authorizedFor` did, so a
+ * view authorized for the older snapshot reveals nothing the player hasn't
+ * reached. Any rollback (undo, reset, older import) fails this check.
+ */
+export function coversSnapshot(current: ProgressSnapshot, authorizedFor: ProgressSnapshot): boolean {
+  const done = new Set(current.completed.filter((id) => !current.unsure.includes(id)));
+  const found = new Set(current.discovered);
+  return authorizedFor.completed.every((id) => done.has(id)) && authorizedFor.discovered.every((id) => found.has(id));
 }
 
 export function readCachedEvaluation(): CachedEvaluation | null {
   try {
     const raw = window.localStorage.getItem(CACHE_KEY);
-    return raw ? (JSON.parse(raw) as CachedEvaluation) : null;
+    const parsed = raw ? (JSON.parse(raw) as Partial<CachedEvaluation>) : null;
+    return parsed?.key && parsed.snapshot && parsed.evaluation ? (parsed as CachedEvaluation) : null;
   } catch {
     return null;
   }

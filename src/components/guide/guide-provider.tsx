@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { EvaluateResponse, PlayerState, ProgressSnapshot, ProgressStore, ProgressUpdate } from "@/contracts";
 import { createProgressStore, toProgressSnapshot } from "@/persistence";
-import { guideClient, readCachedEvaluation, snapshotKey, writeCachedEvaluation } from "./guide-client";
+import { coversSnapshot, guideClient, readCachedEvaluation, snapshotKey, writeCachedEvaluation, type CachedEvaluation } from "./guide-client";
 
 export type EvaluationStatus = "loading" | "fresh" | "stale" | "offline-empty" | "error";
 
@@ -27,8 +27,9 @@ export function GuideProvider({ children }: { children: React.ReactNode }) {
   // One store per UI (persistence contract). Creating it opens nothing until load().
   const [store] = useState<ProgressStore>(() => createProgressStore());
   const [state, setState] = useState<PlayerState | null>(null);
-  const [evaluation, setEvaluation] = useState<EvaluateResponse | null>(null);
-  const [status, setStatus] = useState<EvaluationStatus>("loading");
+  // The latest server view, bound to the snapshot that authorized it.
+  const [authorized, setAuthorized] = useState<CachedEvaluation | null>(null);
+  const [fetchFailed, setFetchFailed] = useState<{ key: string; offline: boolean } | null>(null);
   const [storageError, setStorageError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
 
@@ -44,28 +45,29 @@ export function GuideProvider({ children }: { children: React.ReactNode }) {
   const snapshot = useMemo(() => (state ? toProgressSnapshot(state) : null), [state]);
   const key = useMemo(() => (snapshot ? snapshotKey(snapshot) : null), [snapshot]);
 
-  // Show the last authorized view immediately, then refresh from the server.
+  // Load the last authorized view from the offline cache, then refresh from the server.
+  // Responses for a snapshot that is no longer current are aborted and dropped.
   useEffect(() => {
     if (!snapshot || !key) return;
     const cached = readCachedEvaluation();
     const controller = new AbortController();
     void Promise.resolve().then(() => {
       if (!cached || controller.signal.aborted) return;
-      setEvaluation((current) => current ?? cached.evaluation);
-      setStatus((current) => (current === "loading" ? (cached.key === key ? "fresh" : "stale") : current));
+      setAuthorized((current) => current ?? cached);
     });
     const timer = window.setTimeout(() => {
       guideClient
         .evaluate(snapshot, controller.signal)
-        .then((result) => {
-          setEvaluation(result);
-          setStatus("fresh");
-          writeCachedEvaluation({ key, evaluation: result });
-        })
-        .catch((error: unknown) => {
+        .then((evaluation) => {
           if (controller.signal.aborted) return;
-          void error;
-          setStatus(cached ? (cached.key === key ? "fresh" : "stale") : navigator.onLine ? "error" : "offline-empty");
+          const entry = { key, snapshot, evaluation };
+          setAuthorized(entry);
+          setFetchFailed(null);
+          writeCachedEvaluation(entry);
+        })
+        .catch(() => {
+          if (controller.signal.aborted) return;
+          setFetchFailed({ key, offline: !navigator.onLine });
         });
     }, 120);
     return () => {
@@ -73,6 +75,27 @@ export function GuideProvider({ children }: { children: React.ReactNode }) {
       window.clearTimeout(timer);
     };
   }, [key, snapshot, nonce]);
+
+  // Render-time guard: a view is shown only if current progress still covers the
+  // snapshot it was authorized for. After any rollback it is withheld immediately.
+  const view = useMemo(() => {
+    if (!authorized || !snapshot || !key) return null;
+    if (authorized.key === key) return { evaluation: authorized.evaluation, stale: false };
+    if (coversSnapshot(snapshot, authorized.snapshot)) return { evaluation: authorized.evaluation, stale: true };
+    return null;
+  }, [authorized, snapshot, key]);
+
+  const evaluation = view?.evaluation ?? null;
+  const failedNow = fetchFailed && fetchFailed.key === key ? fetchFailed : null;
+  const status: EvaluationStatus = view
+    ? view.stale && failedNow
+      ? "stale"
+      : "fresh"
+    : failedNow
+      ? failedNow.offline
+        ? "offline-empty"
+        : "error"
+      : "loading";
 
   const apply = useCallback(async (update: ProgressUpdate, label: string) => {
     try {

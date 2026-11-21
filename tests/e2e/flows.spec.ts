@@ -74,3 +74,21 @@ test("no withheld or future titles appear anywhere in the UI", async ({ page }) 
     }
   }
 });
+
+test("a rollback while offline withholds the previously unlocked view", async ({ page, context }) => {
+  await seed(page);
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Impounded Vehicle" })).toBeVisible();
+  // Complete the next story mission while online: new jobs unlock.
+  await page.getByRole("button", { name: "Mark complete" }).first().click();
+  const sheet = page.getByRole("dialog");
+  await sheet.getByRole("button", { name: "Done" }).first().click(); // "Continue the story" is listed first
+  await sheet.getByRole("button", { name: "Close" }).click();
+  await page.goto("/journal");
+  await expect(page.getByText("The pawn shop job").first()).toBeVisible();
+  // Go offline, then undo: the unlocked content must disappear at once.
+  await context.setOffline(true);
+  await page.getByRole("button", { name: "Undo last" }).click();
+  await expect(page.getByText("The pawn shop job")).toHaveCount(0);
+  await context.setOffline(false);
+});
