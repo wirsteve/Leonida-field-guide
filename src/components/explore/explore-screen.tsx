@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ChevronRight, Flame, MapPin, Minus, Plus, Sparkles, Trophy } from "lucide-react";
+import { Check, ChevronRight, Flame, MapPin, Minus, Plus, Shuffle, Sparkles, Trophy } from "lucide-react";
 import type { PublicGuideRecord, RecordKind } from "@/contracts";
 import { useGuide } from "@/components/guide/guide-provider";
 import { CONFIDENCE_LABEL, KIND_LABEL, TRY_THIS_TAGS, isOutstanding, isTryThis } from "@/components/guide/labels";
@@ -246,6 +246,22 @@ function IconButton({ label, onClick, children, disabled }: { label: string; onC
   );
 }
 
+/** Picks a random not-yet-done "Try this" item and opens it. */
+export function SurpriseButton({ items, label = "Surprise me" }: { items: PublicGuideRecord[]; label?: string }) {
+  const { openRecord } = useActions();
+  const pool = items.filter((r) => r.status !== "completed");
+  if (pool.length === 0) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => openRecord(pool[Math.floor(Math.random() * pool.length)].id)}
+      className="tap flex min-h-11 shrink-0 items-center gap-1.5 rounded-full bg-coral/15 px-3.5 text-[0.8125rem] font-semibold text-coral ring-1 ring-inset ring-coral/35 hover:bg-coral/25"
+    >
+      <Shuffle size={14} aria-hidden /> {label}
+    </button>
+  );
+}
+
 /** "Try this": viral, community-discovered sandbox fun. Not missions, not 100%. */
 function TryThisSection({ items }: { items: PublicGuideRecord[] }) {
   const { openRecord, mark } = useActions();
@@ -256,9 +272,10 @@ function TryThisSection({ items }: { items: PublicGuideRecord[] }) {
           <Flame size={14} aria-hidden /> Try this
         </h2>
         <span className="h-px flex-1 bg-rule" aria-hidden />
+        <SurpriseButton items={items} />
       </div>
       <p className="-mt-1 mb-3 text-[0.8125rem] leading-snug text-ivory-3">
-        Stunts and chaos players have shared since launch. Pure fun, with no effect on your progress.
+        Stunts players have shared since launch, plus challenge ideas built on real mechanics. Pure fun, with no effect on your progress.
       </p>
       <ul className="space-y-2.5">
         {items.map((r) => {
@@ -279,7 +296,7 @@ function TryThisSection({ items }: { items: PublicGuideRecord[] }) {
                     ))}
                     {r.area && <span className="text-[0.75rem] text-ivory-3">· {r.area.label}</span>}
                     <span className={cx("text-[0.75rem]", r.confidence === "low" || r.confidence === "unverified" ? "text-gold" : "text-ivory-3")}>
-                      · {r.confidence === "low" || r.confidence === "unverified" ? "Spotted by players, not confirmed" : CONFIDENCE_LABEL[r.confidence]}
+                      · {r.tags.includes("idea") ? "Challenge idea" : r.confidence === "low" || r.confidence === "unverified" ? "Spotted by players, not confirmed" : `Players found this · ${CONFIDENCE_LABEL[r.confidence]}`}
                     </span>
                   </span>
                 </button>
