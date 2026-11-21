@@ -34,6 +34,7 @@
     "@vitest/coverage-v8": "^5.1.1",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "fake-indexeddb": "6.2.5",
     "jsdom": "^31.0.1",
     "tailwindcss": "4.3.3",
     "tsx": "^4.23.15",
