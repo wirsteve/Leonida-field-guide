@@ -73,8 +73,8 @@ export const chapter2Records: GuideRecord[] = [
       evidence: [cite(ppx("collect-chemicals-for-kyle"), "Texted about a day after the farm job; you can steal the van instead of paying; pays $1,000.")],
     },
     {
-      name: "Kyle's follow-up job",
-      // Canonical in-game title withheld (may reveal content): see TITLE_NOTES.
+      name: "Spoiler",
+      // Real title gives something away (player preference): see TITLE_NOTES.
       summary: "Kyle's follow-up job, sent by text after the farm visit.",
       guidance: "You don't have to pay for the delivery. Taking it by force is an option.",
       tips: ["If you're short on cash, don't hand over money here. There's another way to get the job done."],
@@ -136,8 +136,7 @@ export const chapter2Records: GuideRecord[] = [
       restricted: { conflicts: "Game8 calls Thrillbillies and its follow-up required; PowerPyx, GTABase and Game Rant call them optional." },
     },
     {
-      name: "Race at the Mud Club",
-      // Canonical in-game title withheld (may reveal content): see TITLE_NOTES.
+      name: "Thrillbillies",
       summary: "A dirt-track race at the Mud Club north of Port Gellhorn.",
       guidance: "Do it. Most guides call it optional, but it pays well and opens a run of jobs.",
       tips: ["You only need to avoid finishing last, but a win pays the most.", "Buy the outfit at the merch stall and rent a bike on site."],
@@ -160,8 +159,8 @@ export const chapter2Records: GuideRecord[] = [
       restricted: { conflicts: "Game8 lists it as required to progress; others call it optional." },
     },
     {
-      name: "Billy's next job",
-      // Canonical in-game title withheld (may reveal content): see TITLE_NOTES.
+      name: "Spoiler",
+      // Real title gives something away (player preference): see TITLE_NOTES.
       summary: "Billy's follow-up job, sent by text after the race.",
       guidance: "Take it when the text arrives. It's a good payday for the time.",
       uniqueExperience: true,
@@ -181,8 +180,7 @@ export const chapter2Records: GuideRecord[] = [
       restricted: { notes: "GTABase's 'Required for 100%: Yes' is a template field on every page; not specifically required." },
     },
     {
-      name: "The pawn shop job",
-      // Canonical in-game title withheld (may reveal content): see TITLE_NOTES.
+      name: "Hit Avery Pawn",
       summary: "Rob the pawn shop in Port Gellhorn.",
       guidance: "A solid optional score. Fence what you take right away.",
       tips: ["Threatening the staff can get you the safe code. It changes each time.", "Smashing display cases brings a two-star response."],
@@ -205,8 +203,7 @@ export const chapter2Records: GuideRecord[] = [
       restricted: { notes: "Trophy 'Let's Go Bowling' for all three valuables; the robbery respawns later, so not missable." },
     },
     {
-      name: "The bowling alley job",
-      // Canonical in-game title withheld (may reveal content): see TITLE_NOTES.
+      name: "Hit Kingpin Bowling",
       summary: "Hit the bowling alley that a local crew has taken over.",
       guidance: "Prepare before you go: buy explosives at the gun store first.",
       tips: ["Sticky bombs make short work of the safe.", "Search every room. The best haul isn't all in one place."],
@@ -225,8 +222,8 @@ export const chapter2Records: GuideRecord[] = [
       evidence: [cite(ppx("veteran-hunted-meet-bret"), "Optional, Jason-only text some time after Coffee Break; pays $500; opens hunting."), cite("gb-money", "Hunting requests open after this mission.")],
     },
     {
-      name: "A job offer for Jason",
-      // Canonical in-game title withheld (may reveal content): see TITLE_NOTES.
+      name: "Spoiler",
+      // Real title gives something away (player preference): see TITLE_NOTES.
       summary: "A text to Jason about a job out in the country.",
       guidance: "When the text arrives, take it as Jason. It opens up a new way to earn.",
       uniqueExperience: true,
@@ -269,8 +266,8 @@ export const chapter2Records: GuideRecord[] = [
       evidence: [cite(ppx("collect-moses-gift"), "After all requested cars, Moses texts; a unique Sultan waits next to his shop."), cite("ps-moses", "Gift car after the final drop-off.")],
     },
     {
-      name: "Moses has something for you",
-      // Canonical in-game title withheld (may reveal content): see TITLE_NOTES.
+      name: "Spoiler",
+      // Real title gives something away (player preference): see TITLE_NOTES.
       summary: "Moses has something waiting for you next to his shop.",
       guidance: "Pick it up before you sell or register anything else there.",
       uniqueExperience: true,
@@ -425,16 +422,13 @@ export const chapter2Records: GuideRecord[] = [
 ];
 
 /**
- * Canonical titles of optional missions whose public names are neutral labels,
- * because the real title gives away what happens (player request, 2026-11-21).
+ * Canonical titles shown to the player as "Spoiler" because the real title
+ * gives away what happens (player request, 2026-11-21).
  * SERVER-ONLY research reference; never projected.
  */
 export const TITLE_NOTES: Record<string, string> = {
   "side-collect-chemicals": "Collect Chemicals for Kyle",
-  "side-thrillbillies": "Thrillbillies (Check Out the Mud Club)",
   "side-twist-wrist": "Twist Wrist, Smash, Grab",
-  "side-hit-avery-pawn": "Hit Avery Pawn",
-  "side-hit-kingpin-bowling": "Hit Kingpin Bowling",
-  "side-veteran-hunted": "Veteran Hunted (Meet Bret)",
+  "side-veteran-hunted": "Veteran Hunted",
   "veh-moses-gift": "Collect Moses' Gift",
 };

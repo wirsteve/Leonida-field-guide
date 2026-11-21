@@ -85,10 +85,32 @@ test("a rollback while offline withholds the previously unlocked view", async ({
   await sheet.getByRole("button", { name: "Done" }).first().click(); // "Continue the story" is listed first
   await sheet.getByRole("button", { name: "Close" }).click();
   await page.goto("/journal");
-  await expect(page.getByText("The pawn shop job").first()).toBeVisible();
+  await expect(page.getByText("Hit Avery Pawn").first()).toBeVisible();
   // Go offline, then undo: the unlocked content must disappear at once.
   await context.setOffline(true);
   await page.getByRole("button", { name: "Undo last" }).click();
-  await expect(page.getByText("The pawn shop job")).toHaveCount(0);
+  await expect(page.getByText("Hit Avery Pawn")).toHaveCount(0);
   await context.setOffline(false);
+});
+
+test("fresh install: one-tap starting point sets up the guide", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: /Tell the guide where you are/ }).click();
+  await page.getByRole("button", { name: /^Start/ }).click();
+  await page.getByRole("button", { name: /Just finished the breakfast stickup/ }).click();
+  // Optional reconciliation lists only reachable content; nothing is pre-marked.
+  await expect(page.getByRole("heading", { name: "Which of these have you done?" })).toBeVisible();
+  await expect(page.getByRole("radiogroup", { name: "Daily Driver" })).toBeVisible();
+  await page.getByRole("radiogroup", { name: "Daily Driver" }).getByRole("radio", { name: "Done" }).click();
+  await page.getByRole("radiogroup", { name: "Behind on Payments" }).getByRole("radio", { name: "Done" }).click();
+  await page.getByRole("button", { name: /^Continue/ }).click();
+  await page.getByRole("main").getByLabel("Cash on hand").fill("8400");
+  await page.getByRole("button", { name: "Save and finish" }).click();
+  await page.getByRole("button", { name: /Open my guide/ }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByText("Chapter 02 · Current progress")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Impounded Vehicle" })).toBeVisible();
+  await expect(page.getByText("$8,400")).toBeVisible();
+  const body = (await page.locator("body").innerText()).toLowerCase();
+  for (const title of ["coffee break", "afternoon delight", "checking out"]) expect(body).not.toContain(title);
 });

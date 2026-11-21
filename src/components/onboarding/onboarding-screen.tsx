@@ -10,12 +10,10 @@ import { useGuide } from "@/components/guide/guide-provider";
 import { KIND_LABEL } from "@/components/guide/labels";
 import { Button } from "@/components/ui/primitives";
 import { cx } from "@/components/ui/cx";
+import { CHECKPOINTS, type Checkpoint } from "./checkpoints";
 
 type Step = "welcome" | "story" | "optional" | "cash" | "done";
 const STEPS: Step[] = ["welcome", "story", "optional", "cash", "done"];
-
-/** The milestone the player described when the guide was commissioned. */
-const REPORTED_MILESTONE = "breakfast stickup";
 
 export function OnboardingScreen() {
   const [step, setStep] = useState<Step>("welcome");
@@ -100,7 +98,7 @@ function Promise({ icon, text }: { icon: React.ReactNode; text: string }) {
 
 function StoryStep({ onNext }: { onNext: () => void }) {
   const { snapshot, apply } = useGuide();
-  const [query, setQuery] = useState(REPORTED_MILESTONE);
+  const [query, setQuery] = useState("");
   const [result, setResult] = useState<IdentifyResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
@@ -118,6 +116,19 @@ function StoryStep({ onNext }: { onNext: () => void }) {
     }
   }
 
+  async function startFrom(checkpoint: Checkpoint) {
+    setBusy(true);
+    const ok = await apply(
+      { type: "mark-records", recordIds: checkpoint.storyIds, mark: "complete", via: "onboarding" },
+      `Setup: ${checkpoint.label.toLowerCase()}`,
+    );
+    if (ok) {
+      await apply({ type: "set-onboarding", status: "in-progress", reportedMilestone: checkpoint.label }, "Recorded your starting point");
+      onNext();
+    }
+    setBusy(false);
+  }
+
   async function confirm() {
     if (!result?.matched) return;
     const ok = await apply(
@@ -132,9 +143,29 @@ function StoryStep({ onNext }: { onNext: () => void }) {
 
   return (
     <>
-      <Title eyebrow="Story progress" title="What's the last story mission you finished?">
-        <p>Type its name as it appeared in game. Some informal names work too.</p>
+      <Title eyebrow="Story progress" title="Where are you in the story?">
+        <p>Pick your starting point. You can fine-tune anything afterwards.</p>
       </Title>
+      <ul className="space-y-2">
+        {CHECKPOINTS.map((checkpoint) => (
+          <li key={checkpoint.id}>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => startFrom(checkpoint)}
+              className="tap flex min-h-16 w-full items-center gap-3 rounded-2xl border border-rule-strong bg-panel/70 p-4 text-left hover:bg-panel-2 disabled:opacity-50"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block text-[1.05rem] font-medium text-ivory">{checkpoint.label}</span>
+                <span className="mt-0.5 block text-[0.8125rem] text-ivory-3">{checkpoint.detail}</span>
+              </span>
+              <ArrowRight size={20} className="shrink-0 text-gold" aria-hidden />
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <p className="eyebrow mb-3 mt-8 text-ivory-3">Or type the last mission you finished</p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -164,7 +195,9 @@ function StoryStep({ onNext }: { onNext: () => void }) {
       {result?.matched && (
         <div className="mt-6 rounded-[1.4rem] bg-sea/10 p-5 ring-1 ring-inset ring-sea/35">
           <p className="eyebrow text-sea">Found it</p>
-          <p className="headline mt-2 text-[1.6rem] leading-tight text-ivory">{result.matched.name}</p>
+          <p className="headline mt-2 text-[1.6rem] leading-tight text-ivory">
+            {/^(continue the story|story mission|spoiler)$/i.test(result.matched.name) ? `“${query.trim()}”` : result.matched.name}
+          </p>
           <p className="mt-2 text-[0.95rem] leading-relaxed text-ivory-2">
             This marks it and the {result.impliedComplete.length - 1} story missions before it as complete. Optional content stays unrecorded until you confirm it.
           </p>
