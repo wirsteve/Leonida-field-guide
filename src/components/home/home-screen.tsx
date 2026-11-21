@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useGuide } from "@/components/guide/guide-provider";
 import { isTryThis } from "@/components/guide/labels";
+import { SurpriseButton } from "@/components/explore/explore-screen";
 import { Masthead } from "@/components/shell/masthead";
 import { StatusBanner } from "@/components/shell/status-banner";
 import { SectionLabel, VerificationNote } from "@/components/ui/primitives";
@@ -75,6 +76,15 @@ export function HomeScreen() {
           <div className="mt-8">
             <SectionLabel>Explore</SectionLabel>
             <ExploreTeaser evaluation={evaluation} />
+            {(() => {
+              const fun = evaluation.records.filter(isTryThis);
+              return fun.length > 0 ? (
+                <div className="mt-3 flex items-center justify-between gap-3 rounded-[var(--radius-card)] border border-coral/25 bg-coral/8 py-2 pl-4 pr-2">
+                  <p className="text-[0.9rem] text-ivory-2">Bored? Do something stupid.</p>
+                  <SurpriseButton items={fun} label="Surprise me" />
+                </div>
+              ) : null;
+            })()}
           </div>
           <VerificationNote className="mt-8">{evaluation.coverageNote}</VerificationNote>
         </>

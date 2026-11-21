@@ -63,4 +63,5 @@ export const TRY_THIS_TAGS: Record<string, string> = {
   wildlife: "Wildlife",
   police: "Police",
   hidden: "Hidden detail",
+  idea: "Challenge",
 };
