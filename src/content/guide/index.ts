@@ -3,6 +3,7 @@ import type { GuideDataset } from "@/contracts";
 import { chapter2Records } from "./chapter2";
 import { CH1_LAST, stages, storyRecords } from "./story";
 import { tryThisRecords } from "./try-this";
+import { completionRecords } from "./completion";
 
 /**
  * Authored guide dataset — SERVER-ONLY (owner: Claude).
@@ -11,6 +12,10 @@ import { tryThisRecords } from "./try-this";
  * Importing this module from a client component fails the build by design.
  * Validate with `npm run content:validate`.
  */
+const storyByName = new Map(
+  storyRecords.filter((r) => r.kind === "story-mission").map((r) => [r.public.name.toLowerCase(), r.id] as const),
+);
+
 const dataset: GuideDataset = {
   contentVersion: "2026.11.21-ch2.1",
   generatedOn: "2026-11-21",
@@ -20,7 +25,7 @@ const dataset: GuideDataset = {
     { id: "port-gellhorn", label: "Port Gellhorn", visibleWhen: { completed: CH1_LAST } },
     { id: "kelly-county", label: "Kelly County", visibleWhen: { completed: CH1_LAST } },
   ],
-  records: [...stages, ...storyRecords, ...chapter2Records, ...tryThisRecords],
+  records: [...stages, ...storyRecords, ...chapter2Records, ...tryThisRecords, ...completionRecords(storyByName)],
 };
 
 export function loadGuideDataset(): GuideDataset {
