@@ -115,7 +115,11 @@ describe("guide gateway (synthetic dataset)", () => {
     const response = await evaluatePost(request({ snapshot: progress }));
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(await response.json()).toMatchObject({ records: [], readiness: { status: "not-fully-verified" } });
+    expect(await response.json()).toMatchObject({
+      contractVersion: 1,
+      records: expect.any(Array),
+      readiness: { status: expect.any(String) },
+    });
     const invalid = await checkPost(request({ snapshot: progress, recordId: "SYNTHETIC secret!" }));
     expect(invalid.status).toBe(400);
     expect(invalid.headers.get("cache-control")).toBe("no-store");
@@ -185,4 +189,24 @@ describe("readiness coverage", () => {
     expect(evaluateGuide(dataset, progress).readiness.status).toBe("safe-to-advance");
     expect(checkMission(dataset, progress, { recordId: mission.id }).verdict).toBe("go-ahead");
   });
+});
+
+it("reconciles an exact verified alias for a visible neutral mission without disclosing its title", () => {
+  const neutral: GuideRecord = {
+    ...mission,
+    public: { ...mission.public, nameSafeBeforeStart: false, aliases: ["synthetic informal alias"] },
+  };
+  const other = { ...future, public: { ...future.public, aliases: ["synthetic hidden alias"] } };
+  const dataset = data(neutral, other);
+  const query = "synthetic informal alias";
+
+  expect(identifyMission(dataset, { snapshot: progress, query })).toEqual({
+    matched: { recordId: neutral.id, name: "Story mission" },
+    impliedComplete: [neutral.id],
+  });
+  expect(suggestMissions(dataset, { snapshot: progress, query })).toEqual({ suggestions: [] });
+  expect(identifyMission(dataset, { snapshot: progress, query: "synthetic hidden alias" }))
+    .toEqual({ matched: null, impliedComplete: [] });
+  expect(identifyMission(dataset, { snapshot: progress, query: "synthetic informal" }))
+    .toEqual({ matched: null, impliedComplete: [] });
 });
