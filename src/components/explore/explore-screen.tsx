@@ -155,7 +155,7 @@ function ExploreRow({ record }: { record: PublicGuideRecord }) {
       apply({ type: "set-collectible-count", setId: record.id, count: Math.max(0, n) }, `${record.name}: ${Math.max(0, n)} found`);
     return (
       <li className="flex items-center gap-3 bg-panel/50 p-3 pl-4">
-        <button type="button" onClick={() => openRecord(record.id)} className="min-w-0 flex-1 text-left">
+        <button type="button" onClick={() => openRecord(record.id)} className="min-h-11 min-w-0 flex-1 text-left">
           <p className="truncate text-[0.975rem] text-ivory">{record.name}</p>
           <p className="text-[0.8125rem] text-ivory-3">
             {count} found{record.collectibleTotal ? ` of ${record.collectibleTotal}` : ""}

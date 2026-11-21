@@ -57,7 +57,7 @@ export function HomeScreen() {
 
       {queue.length > 0 && (
         <div className="mt-8">
-          <SectionLabel aside={<Link href="/strategy" className="text-[0.8125rem] text-sea">Full plan</Link>}>The route</SectionLabel>
+          <SectionLabel aside={<Link href="/strategy" className="tap -my-3 inline-flex min-h-11 items-center px-1 text-[0.8125rem] text-sea">Full plan</Link>}>The route</SectionLabel>
           <RouteQueue items={queue} />
         </div>
       )}
