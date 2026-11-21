@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useGuide } from "@/components/guide/guide-provider";
+import { isTryThis } from "@/components/guide/labels";
 import { Masthead } from "@/components/shell/masthead";
 import { StatusBanner } from "@/components/shell/status-banner";
 import { SectionLabel, VerificationNote } from "@/components/ui/primitives";
@@ -15,7 +16,11 @@ import { ExploreTeaser, MoneySnapshot } from "./snapshots";
 export function HomeScreen() {
   const { evaluation, state } = useGuide();
   const onboarded = state?.onboarding.status === "complete";
-  const queue = evaluation ? evaluation.queue.filter((q) => q.id !== evaluation.nextBestMove?.id && q.priority !== "wait" && q.kind !== "money").slice(0, 4) : [];
+  const tryThisIds = new Set((evaluation?.records ?? []).filter(isTryThis).map((r) => r.id));
+  // Progress first: a "Try this" stunt only leads Home when nothing else is outstanding.
+  const progressQueue = (evaluation?.queue ?? []).filter((q) => !tryThisIds.has(q.recordId ?? ""));
+  const nextMove = progressQueue.find((q) => q.priority !== "wait") ?? evaluation?.nextBestMove ?? null;
+  const queue = progressQueue.filter((q) => q.id !== nextMove?.id && q.priority !== "wait" && q.kind !== "money").slice(0, 4);
 
   return (
     <main className="page">
@@ -40,8 +45,8 @@ export function HomeScreen() {
 
       <div id="next-move" className="mt-6 scroll-mt-4">
         {!evaluation && <HeroSkeleton />}
-        {evaluation?.nextBestMove && <NextMoveHero move={evaluation.nextBestMove} />}
-        {evaluation && !evaluation.nextBestMove && (
+        {nextMove && <NextMoveHero move={nextMove} />}
+        {evaluation && !nextMove && (
           <section className="rounded-[1.6rem] border border-rule bg-panel/70 p-5">
             <p className="eyebrow text-ivory-2">Your next best move</p>
             <p className="headline mt-3 text-[1.6rem] leading-tight">Nothing verified to recommend yet.</p>

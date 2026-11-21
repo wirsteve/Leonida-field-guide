@@ -89,9 +89,13 @@ export function StrategyScreen() {
 function regroup(evaluation: ReturnType<typeof useGuide>["evaluation"]): StrategySection[] {
   if (!evaluation) return [];
   const kindOf = new Map(evaluation.records.map((r) => [r.id, r.kind]));
+  const tryThis = new Set(evaluation.records.filter((r) => r.tags.includes("try-this")).map((r) => r.id));
   const isMoney = (id?: string) => (id ? kindOf.get(id) === "money-method" : false);
+  const isFun = (id?: string) => (id ? tryThis.has(id) : false);
   const sections = evaluation.strategy.sections.map((section) =>
-    section.kind === "recommended-order" ? { ...section, items: section.items.filter((i) => !isMoney(i.recordId)) } : section,
+    section.kind === "recommended-order" || section.kind === "exploration"
+      ? { ...section, items: section.items.filter((i) => !isMoney(i.recordId) && !isFun(i.recordId)) }
+      : section,
   );
   const money = evaluation.money.methodIds
     .map((id) => evaluation.records.find((r) => r.id === id))

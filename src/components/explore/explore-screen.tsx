@@ -1,20 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ChevronRight, MapPin, Minus, Plus, Sparkles, Trophy } from "lucide-react";
+import { Check, ChevronRight, Flame, MapPin, Minus, Plus, Sparkles, Trophy } from "lucide-react";
 import type { PublicGuideRecord, RecordKind } from "@/contracts";
 import { useGuide } from "@/components/guide/guide-provider";
-import { KIND_LABEL, isOutstanding } from "@/components/guide/labels";
+import { CONFIDENCE_LABEL, KIND_LABEL, TRY_THIS_TAGS, isOutstanding, isTryThis } from "@/components/guide/labels";
 import { useActions } from "@/components/shell/actions-provider";
 import { PageHeader } from "@/components/shell/masthead";
 import { StatusBanner } from "@/components/shell/status-banner";
 import { SectionLabel, VerificationNote, formatMinutes } from "@/components/ui/primitives";
 import { cx } from "@/components/ui/cx";
 
-type Filter = "all" | "priority" | "unique" | "quick" | "missable" | "done";
+type Filter = "all" | "try" | "priority" | "unique" | "quick" | "missable" | "done";
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all", label: "All" },
+  { id: "try", label: "Try this" },
   { id: "priority", label: "Do first" },
   { id: "unique", label: "Unique" },
   { id: "quick", label: "Under 20 min" },
@@ -22,9 +23,9 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: "done", label: "Done" },
 ];
 
-const CATEGORIES: { title: string; kinds: RecordKind[] }[] = [
+const CATEGORIES: { title: string; kinds: RecordKind[]; test?: (r: PublicGuideRecord) => boolean }[] = [
   { title: "Optional missions", kinds: ["side-mission"] },
-  { title: "Activities & minigames", kinds: ["activity"] },
+  { title: "Activities & minigames", kinds: ["activity"], test: (r) => !isTryThis(r) },
   { title: "Races", kinds: ["race"] },
   { title: "Encounters", kinds: ["encounter"] },
   { title: "Places", kinds: ["location"] },
@@ -38,6 +39,8 @@ const EXPLORE_KINDS = new Set(CATEGORIES.flatMap((c) => c.kinds));
 function matches(record: PublicGuideRecord, filter: Filter, area: string | null) {
   if (area && record.area?.id !== area) return false;
   switch (filter) {
+    case "try":
+      return isTryThis(record) && record.status !== "closed";
     case "priority":
       return isOutstanding(record) && (record.lastChance || record.timing === "now" || record.timing === "before-advancing");
     case "unique":
@@ -60,6 +63,7 @@ export function ExploreScreen() {
 
   const records = useMemo(() => (evaluation?.records ?? []).filter((r) => EXPLORE_KINDS.has(r.kind)), [evaluation]);
   const visible = records.filter((r) => matches(r, filter, area));
+  const tryThis = visible.filter(isTryThis);
   const unique = evaluation?.progress.uniqueExperienced ?? 0;
   const official = records.filter((r) => r.officialCompletion === "yes" && r.status === "completed").length;
 
@@ -101,8 +105,9 @@ export function ExploreScreen() {
       )}
 
       <div className="mt-7 space-y-8">
+        {tryThis.length > 0 && <TryThisSection items={tryThis} />}
         {CATEGORIES.map((cat) => {
-          const items = visible.filter((r) => cat.kinds.includes(r.kind));
+          const items = visible.filter((r) => cat.kinds.includes(r.kind) && (cat.test ? cat.test(r) : true));
           if (items.length === 0) return null;
           return (
             <section key={cat.title}>
@@ -234,5 +239,62 @@ function IconButton({ label, onClick, children, disabled }: { label: string; onC
     >
       {children}
     </button>
+  );
+}
+
+/** "Try this": viral, community-discovered sandbox fun. Not missions, not 100%. */
+function TryThisSection({ items }: { items: PublicGuideRecord[] }) {
+  const { openRecord, mark } = useActions();
+  return (
+    <section aria-labelledby="try-this">
+      <div className="mb-3 flex items-center gap-3">
+        <h2 id="try-this" className="eyebrow flex shrink-0 items-center gap-1.5 text-coral">
+          <Flame size={14} aria-hidden /> Try this
+        </h2>
+        <span className="h-px flex-1 bg-rule" aria-hidden />
+      </div>
+      <p className="-mt-1 mb-3 text-[0.8125rem] leading-snug text-ivory-3">
+        Stunts and chaos players have shared since launch. Pure fun, with no effect on your progress.
+      </p>
+      <ul className="space-y-2.5">
+        {items.map((r) => {
+          const done = r.status === "completed";
+          const tags = r.tags.map((t) => TRY_THIS_TAGS[t]).filter(Boolean);
+          return (
+            <li key={r.id} className="relative overflow-hidden rounded-[var(--radius-card)] border border-rule bg-panel/70">
+              <span aria-hidden className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-coral to-gold" />
+              <div className="flex items-start gap-1">
+                <button type="button" onClick={() => openRecord(r.id)} className="tap min-w-0 flex-1 p-4 pl-5 text-left">
+                  <span className={cx("headline block text-[1.2rem] leading-tight", done ? "text-ivory-3" : "text-ivory")}>{r.name}</span>
+                  <span className="mt-1.5 block text-[0.9rem] leading-relaxed text-ivory-2">{r.summary}</span>
+                  <span className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                    {tags.map((t) => (
+                      <span key={t} className="rounded-full bg-ivory/6 px-2 py-0.5 text-[0.6875rem] uppercase tracking-wider text-ivory-2">
+                        {t}
+                      </span>
+                    ))}
+                    {r.area && <span className="text-[0.75rem] text-ivory-3">· {r.area.label}</span>}
+                    <span className={cx("text-[0.75rem]", r.confidence === "low" || r.confidence === "unverified" ? "text-gold" : "text-ivory-3")}>
+                      · {r.confidence === "low" || r.confidence === "unverified" ? "Spotted by players, not confirmed" : CONFIDENCE_LABEL[r.confidence]}
+                    </span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  aria-label={done ? `${r.name}: done. Mark not done` : `Mark ${r.name} done`}
+                  aria-pressed={done}
+                  onClick={() => mark(r, done ? null : "complete")}
+                  className="tap grid size-14 shrink-0 place-items-center"
+                >
+                  <span className={cx("grid size-7 place-items-center rounded-full border-2", done ? "border-coral bg-coral text-ink" : "border-ivory-3/60")}>
+                    {done && <Check size={15} strokeWidth={3} aria-hidden />}
+                  </span>
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }

@@ -48,3 +48,19 @@ export const CONFIDENCE_LABEL = {
   low: "Low confidence",
   unverified: "Unverified",
 } as const;
+
+/** Community-discovered sandbox fun: never part of the story route or 100%. */
+export function isTryThis(record: Pick<PublicGuideRecord, "tags"> | null | undefined): boolean {
+  return Boolean(record?.tags.includes("try-this"));
+}
+
+export const TRY_THIS_TAGS: Record<string, string> = {
+  chaos: "Chaos",
+  stunt: "Stunt",
+  physics: "Physics",
+  funny: "Funny",
+  heist: "Heist-ish",
+  wildlife: "Wildlife",
+  police: "Police",
+  hidden: "Hidden detail",
+};
