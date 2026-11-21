@@ -45,7 +45,7 @@ export function NextMoveHero({ move }: { move: Recommendation }) {
 
         <div className="mt-5 grid gap-2 min-[370px]:grid-cols-2">
           {canComplete ? (
-            <Button variant="primary" size="lg" onClick={() => mark(record, "complete")}>
+            <Button variant="primary" size="lg" className="whitespace-nowrap px-4" onClick={() => mark(record, "complete")}>
               <Check size={18} aria-hidden /> Mark complete
             </Button>
           ) : (

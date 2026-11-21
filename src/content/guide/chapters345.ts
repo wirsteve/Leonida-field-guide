@@ -213,6 +213,13 @@ function prep(
   };
 }
 
+/** Standing money advice lives in the Money tab, not the Home route. */
+const asMoneyAdvice = (record: GuideRecord): GuideRecord => ({
+  ...record,
+  kind: "money-method",
+  public: { ...record.public, timing: "anytime", money: { repeatability: "repeatable", risk: "low" } },
+});
+
 export const laterPrep: GuideRecord[] = [
   prep(
     "prep-heist-charges",
@@ -295,7 +302,7 @@ export const laterPrep: GuideRecord[] = [
       notes: "Endings depend on Mendez choice, bridge choice, relationship, Family Savings and criminal profiles.",
     },
   ),
-  prep(
+  asMoneyAdvice(prep(
     "prep-family-savings",
     101.5,
     "Feed the Family Savings account",
@@ -311,7 +318,7 @@ export const laterPrep: GuideRecord[] = [
       notes: "Goals $5k → $15k → $100k → $2M; $2M needed for the best ending.",
       timing: "now",
     },
-  ),
+  )),
 ];
 
 export const laterStory: GuideRecord[] = [...chapter3, ...chapter4, ...chapter5];
