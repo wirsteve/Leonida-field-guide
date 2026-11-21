@@ -1,0 +1,118 @@
+/* Base layer: page chrome, safe areas, editorial utilities. */
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --tabbar-h: 64px;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body {
+    background: var(--color-ink);
+    color: var(--color-ivory);
+    font-family: var(--font-sans);
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    min-height: 100dvh;
+    /* Subtle coastal atmosphere: a low horizon glow + faint chart grid. */
+    background-image:
+      radial-gradient(120% 60% at 85% -10%, rgb(118 188 175 / 0.1), transparent 60%),
+      radial-gradient(90% 50% at -10% 0%, rgb(240 141 112 / 0.08), transparent 55%);
+    background-attachment: fixed;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: rgb(228 182 108 / 0.35);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+
+  button,
+  a {
+    touch-action: manipulation;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Small-caps strategy-guide label: "CHAPTER 02 · CURRENT PROGRESS" */
+  .eyebrow {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    line-height: 1;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  /* Editorial serif headline */
+  .headline {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    font-variation-settings: "opsz" 72, "SOFT" 30;
+  }
+
+  /* Map-grid texture for hero panels (pure CSS, no imagery) */
+  .chart-grid {
+    background-image:
+      linear-gradient(rgb(242 238 229 / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(242 238 229 / 0.035) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .page {
+    padding-top: calc(var(--safe-top) + 12px);
+    padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom) + 28px);
+    padding-left: max(16px, var(--safe-left));
+    padding-right: max(16px, var(--safe-right));
+    max-width: 640px;
+    margin-inline: auto;
+  }
+
+  .tap {
+    transition: transform 160ms var(--ease-out-soft), background-color 160ms, opacity 160ms;
+  }
+  .tap:active {
+    transform: scale(0.97);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise-in {
+  animation: rise-in 520ms var(--ease-out-soft) both;
+}
