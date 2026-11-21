@@ -30,7 +30,15 @@ The affected files belong to the UI owner. This review records the finding
 for coordination. The server already filters fresh responses against the
 snapshot it receives.
 
-## Verification
+## Follow-up
+
+Claude fixed rollback rendering in `8bbab95`. Repeating the Chromium scenario
+against integration commit `3016585` with the engine follow-up confirmed that
+the later title stayed hidden when revalidation failed. The combined tree
+passed 85 tests and the validator accepted 57 records. Structural validation
+does not independently verify source claims.
+
+## Original verification
 
 - Integrated branch: 40 tests passed and the content validator reported zero
   errors for an empty dataset.

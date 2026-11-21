@@ -14,8 +14,13 @@ function names(record: PublicGuideRecord): string[] {
   return record.nameWithheld ? [] : [record.name, ...record.aliases].map(normalize);
 }
 
-function uniqueMatch<T extends { projected: PublicGuideRecord }>(entries: T[], query: string): T | undefined {
-  const matches = entries.filter(({ projected }) => names(projected).includes(normalize(query)));
+function uniqueMatch<T extends { projected: PublicGuideRecord }>(
+  entries: T[],
+  query: string,
+  namesFor: (entry: T) => string[] = entry => names(entry.projected),
+): T | undefined {
+  const normalized = normalize(query);
+  const matches = entries.filter(entry => namesFor(entry).includes(normalized));
   return matches.length === 1 ? matches[0] : undefined;
 }
 
@@ -36,7 +41,10 @@ export function suggestMissions(dataset: GuideDataset, { snapshot, query, limit 
 export function identifyMission(dataset: GuideDataset, { snapshot, query }: IdentifyRequest): IdentifyResponse {
   const entries = missions(eligibleGuide(dataset, snapshot).entries)
     .filter(({ record, verified }) => record.kind === "story-mission" && verified);
-  const match = uniqueMatch(entries, query);
+  // An exact, user-supplied alias can identify an eligible neutral mission.
+  // Return its public label and keep these aliases out of suggestions and checks.
+  const match = uniqueMatch(entries, query, ({ record, projected }) =>
+    projected.nameWithheld ? record.public.aliases.map(normalize) : names(projected));
   if (!match) return { matched: null, impliedComplete: [] };
   const byId = new Map(entries.map(entry => [entry.record.id, entry.record]));
   const confirmed = new Set<string>([match.record.id]);
