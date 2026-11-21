@@ -69,6 +69,37 @@ describe("local progress store (synthetic progress)", () => {
     expect(toProgressSnapshot(await store.load())).toMatchObject({ completed: ["synthetic-b"], unsure: ["synthetic-a"] });
   });
 
+  it("does not resurrect explicitly cleared progress from an older backup", async () => {
+    const id = "synthetic-cleared";
+    await store.apply({ type: "mark-record", recordId: id, mark: "complete", via: "journal" }, "Complete");
+    await store.apply({ type: "set-discovered", recordId: id, discovered: true }, "Discover");
+    await store.apply({ type: "set-cash", amount: 100 }, "Cash");
+    await store.apply({ type: "set-cash-target", target: 200 }, "Target");
+    const state = await store.apply({ type: "add-note", body: "Synthetic note" }, "Note");
+    const backup = await store.exportBackup();
+    await store.apply({ type: "mark-record", recordId: id, mark: null, via: "journal" }, "Clear");
+    await store.apply({ type: "set-discovered", recordId: id, discovered: false }, "Forget");
+    await store.apply({ type: "set-cash", amount: null }, "Clear cash");
+    await store.apply({ type: "set-cash-target", target: null }, "Clear target");
+    await store.apply({ type: "delete-note", noteId: state.notes[0].id }, "Delete note");
+
+    const result = await store.importBackup(backup, "merge");
+    expect(result).toMatchObject({ ok: true, state: {
+      marks: {}, discovered: {}, cash: { amount: null, target: null }, notes: [],
+    } });
+    expect(result.state?.marks).not.toHaveProperty(id);
+    expect(result.state?.discovered).not.toHaveProperty(id);
+  });
+
+  it("undoing a local cash update preserves a target added by merge", async () => {
+    await store.apply({ type: "set-cash-target", target: 200 }, "Target");
+    const backup = await store.exportBackup();
+    await store.reset();
+    await store.apply({ type: "set-cash", amount: 100 }, "Cash");
+    expect(await store.importBackup(backup, "merge")).toMatchObject({ ok: true });
+    expect((await store.undo()).cash).toEqual({ amount: null, updatedAt: null, target: 200 });
+  });
+
   it("publishes state after a commit and reports failed writes as rejections", async () => {
     const changes: number[] = [];
     const unsubscribe = store.subscribe(state => changes.push(state.timeline.length));

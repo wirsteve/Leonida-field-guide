@@ -43,11 +43,17 @@ function restoreEntries<Value>(map: Record<string, Value>, entries: PreviousEntr
   }
 }
 
-export function restorePrevious(state: PlayerState, previous: UndoValues): void {
+export function restorePrevious(state: PlayerState, previous: UndoValues, update: ProgressUpdate): void {
   if ("marks" in previous) restoreEntries(state.marks, previous.marks);
   if ("discovered" in previous) restoreEntries(state.discovered, previous.discovered);
   if ("collectibles" in previous) restoreEntries(state.collectibles, previous.collectibles);
-  if ("cash" in previous) state.cash = previous.cash;
+  if ("cash" in previous) {
+    if (update.type === "set-cash") {
+      state.cash.amount = previous.cash.amount;
+      state.cash.updatedAt = previous.cash.updatedAt;
+    }
+    if (update.type === "set-cash-target") state.cash.target = previous.cash.target;
+  }
   if ("onboarding" in previous) state.onboarding = previous.onboarding;
   if ("note" in previous) {
     const { id, previous: note, index } = previous.note;

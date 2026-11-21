@@ -104,7 +104,7 @@ export function createProgressStore(): ProgressStore {
         const exact = Object.hasOwn(value.undo, event.id) ? value.undo[event.id] : undefined;
         const at = now();
         if (exact) {
-          restorePrevious(value.state, exact);
+          restorePrevious(value.state, exact, event.update);
           delete value.undo[event.id];
         } else {
           for (const inverse of event.inverse) {
@@ -153,15 +153,33 @@ export function createProgressStore(): ProgressStore {
     return write(current => {
       const local = current.state;
       const localNotes = new Set(local.notes.map(note => note.id));
+      const removedMarks = new Set<string>();
+      const removedDiscoveries = new Set<string>();
+      let hasLocalTarget = local.cash.target !== null;
+      for (const { update, undone } of local.timeline) {
+        if (undone) continue;
+        if (update.type === "mark-record" && update.mark === null) removedMarks.add(update.recordId);
+        if (update.type === "mark-records" && update.mark === null) {
+          update.recordIds.forEach(id => removedMarks.add(id));
+        }
+        if (update.type === "set-discovered" && !update.discovered) removedDiscoveries.add(update.recordId);
+        if (update.type === "delete-note") localNotes.add(update.noteId);
+        if (update.type === "set-cash-target") hasLocalTarget = true;
+      }
+      const marks = { ...incoming.marks };
+      removedMarks.forEach(id => { delete marks[id]; });
+      const discovered = { ...incoming.discovered };
+      removedDiscoveries.forEach(id => { delete discovered[id]; });
+      const hasLocalCash = local.cash.amount !== null || local.cash.updatedAt !== null;
       const merged: PlayerState = {
         ...local,
-        marks: { ...incoming.marks, ...local.marks },
-        discovered: { ...incoming.discovered, ...local.discovered },
+        marks: { ...marks, ...local.marks },
+        discovered: { ...discovered, ...local.discovered },
         collectibles: { ...incoming.collectibles, ...local.collectibles },
         cash: {
-          amount: local.cash.amount ?? incoming.cash.amount,
-          updatedAt: local.cash.amount === null ? incoming.cash.updatedAt : local.cash.updatedAt,
-          target: local.cash.target ?? incoming.cash.target,
+          amount: hasLocalCash ? local.cash.amount : incoming.cash.amount,
+          updatedAt: hasLocalCash ? local.cash.updatedAt : incoming.cash.updatedAt,
+          target: hasLocalTarget ? local.cash.target : incoming.cash.target,
         },
         notes: [...incoming.notes.filter(note => !localNotes.has(note.id)), ...local.notes],
         updatedAt: now(),

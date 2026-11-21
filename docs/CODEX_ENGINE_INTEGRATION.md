@@ -35,7 +35,7 @@ from `src/persistence`. Use one store per UI, await `apply` or `undo` before
 showing save success, and handle rejected operations explicitly. Import accepts
 a parsed backup or JSON text. Preview before import and require user confirmation
 for replacement. Merge keeps current values when both profiles have a value,
-adds missing values and notes, and retains local history. Use replacement when
+adds missing values and notes, honors explicit local clears, and retains local history. Use replacement when
 a full imported history is needed. Version 1 backups preserve the v1 timeline
 and progress; after replacement, undo can restore only the metadata represented
 by the public inverse updates. IndexedDB works without a network connection.
