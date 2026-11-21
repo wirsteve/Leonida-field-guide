@@ -8,7 +8,18 @@ It answers one question: **"Given exactly where I am right now, what's the smart
 
 ## Status
 
-Foundation: stack, shared contracts v1, module ownership, and the app shell. The guide engine, persistence layer, researched content and full screens arrive in follow-up PRs. See `docs/COLLABORATION.md`.
+- **App:** all five tabs (Home, Strategy, Money, Explore, Journal), plus Check Before Starting, one-tap completion with undo, onboarding with one-tap starting points, backup and import, and offline shell. Installable on iPhone.
+- **Try this:** 11 viral, community-discovered stunts in Explore (ATM yank, plane pinball, and more), each with sources and a confidence label. Not missions, not 100%.
+- **Engine, persistence and gateway** (Codex): integrated. Progress lives in IndexedDB on your device, and guide content is filtered server-side for your progress.
+- **Content:** Chapters 1–2, verified against guide pages read on Nov 21, 2026. See [`docs/research/COVERAGE.md`](docs/research/COVERAGE.md) for what is and isn't covered.
+- **Install on iPhone:** see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
+### Known limitations
+- The guide can't read your console save. It knows only what you record.
+- Research is two days post-launch. Where sources disagree, the guide says "Not fully verified" rather than "Safe to advance".
+- Collectibles and the official 100% checklist aren't shipped yet; no reliable source exists.
+- Onboarding: use a one-tap starting point (after the breakfast stickup, or after Chapter 1). Typing a mission name only recognizes the mission right after what you've recorded. Codex owns that lookup and kept it eligibility-only.
+- Optional missions whose real titles give things away show as **"Spoiler"**.
 
 ## Develop
 
@@ -25,6 +36,8 @@ npm run test:e2e     # Playwright on iPhone 15 / iPhone SE viewports (after a bu
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): stack, the spoiler boundary, data flow
 - [`docs/CONTRACTS.md`](docs/CONTRACTS.md): shared interfaces (`src/contracts/`)
 - [`docs/COLLABORATION.md`](docs/COLLABORATION.md): Claude ↔ Codex ownership and workflow
-- [`docs/research/SPOILER_STYLE.md`](docs/research/SPOILER_STYLE.md): rules for player-facing copy
+- [`docs/research/SPOILER_STYLE.md`](docs/research/SPOILER_STYLE.md): rules for player-facing copy and titles
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md): Vercel + iPhone Home Screen install
+- `npm run content:validate`: dataset schema, integrity, evidence and spoiler lint
 
 The core guide needs no API keys and has no recurring costs.

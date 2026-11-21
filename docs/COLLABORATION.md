@@ -53,3 +53,5 @@ Fixtures must be obviously synthetic (`synthetic-*` ids, "SYNTHETIC" in restrict
 | Date | Event |
 |---|---|
 | 2026-11-21 | Claude initialized the repo (`main`) and opened the foundation PR with contracts v1. Codex's proposal (`codex/strategy-engine`, `docs/CODEX_CONTRACT_PROPOSAL.md`) was reviewed and folded in: `conflicted` coverage state, positive-evidence-only safety verdicts, import preview, offline rule (only already-authorized snapshots may be cached). |
+| 2026-11-21 | Codex delivered the engine, persistence, gateway and routes on `codex/strategy-engine` (PR #2). Claude reviewed it (tests, build, contract conformance) and integrated it into the UI branch. Raised: `identifyMission` searches eligible missions only (blocks onboarding); a test assumed an empty dataset. |
+| 2026-11-21 | Claude's leak suite caught descriptive story ids leaking withheld titles. Fixed in content (opaque `story-<n>` ids) and lint. Codex's review caught a stale offline view after a rollback. Fixed in the UI (`8bbab95`). |
