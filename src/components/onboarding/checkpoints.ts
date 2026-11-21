@@ -19,10 +19,7 @@ export interface Checkpoint {
 
 const range = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => `story-${from + i}`);
 const CHAPTER_ONE = range(101, 122);
-/** Chapter 2 missions required to finish it (two optional-order errands are confirmed separately). */
-const CHAPTER_TWO_DONE = [...CHAPTER_ONE, ...range(201, 204), ...range(206, 209), ...range(211, 215)];
-const CHAPTER_THREE_DONE = [...CHAPTER_TWO_DONE, ...range(301, 327)];
-const CHAPTER_FOUR_DONE = [...CHAPTER_THREE_DONE, ...range(401, 428)];
+
 
 export const CHECKPOINTS: Checkpoint[] = [
   {
@@ -39,7 +36,6 @@ export const CHECKPOINTS: Checkpoint[] = [
     through: "story-122",
     storyIds: CHAPTER_ONE,
   },
-  { id: "chapter-two-done", label: "Just finished Chapter 2", detail: "The start of Chapter 3.", through: "story-215", storyIds: CHAPTER_TWO_DONE },
-  { id: "chapter-three-done", label: "Just finished Chapter 3", detail: "The start of Chapter 4.", through: "story-327", storyIds: CHAPTER_THREE_DONE },
-  { id: "chapter-four-done", label: "Just finished Chapter 4", detail: "The start of Chapter 5.", through: "story-428", storyIds: CHAPTER_FOUR_DONE },
 ];
+// No later-chapter checkpoints: listing them would reveal how many chapters the
+// game has. Players further along type the last mission they finished instead.

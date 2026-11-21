@@ -18,7 +18,7 @@ It answers one question: **"Given exactly where I am right now, what's the smart
 - The guide can't read your console save. It knows only what you record.
 - Research is two days post-launch. Where sources disagree, the guide says "Not fully verified" rather than "Safe to advance".
 - Collectible locations aren't mapped (totals and tips only); sources haven't finished them yet.
-- Onboarding: pick a one-tap starting point (your milestone or any chapter), or type the last mission you finished. Any exact title or verified nickname works.
+- Onboarding: pick a one-tap starting point (your milestone, or the end of Chapter 1), or type the last mission you finished. Any exact title or verified nickname works.
 - Optional missions whose real titles give things away show as **"Spoiler"**.
 
 ## Develop

@@ -30,6 +30,12 @@ describe("onboarding checkpoints", () => {
     expect(new Set(checkpoint.storyIds)).toEqual(prerequisites(checkpoint.through));
   });
 
+  it("never mentions a chapter beyond the first (no chapter-count leak)", () => {
+    for (const c of CHECKPOINTS) {
+      for (const m of `${c.label} ${c.detail}`.matchAll(/chapter\s+(\d+)/gi)) expect(Number(m[1])).toBeLessThanOrEqual(2);
+    }
+  });
+
   it("uses only opaque ids and spoiler-lint-clean copy", () => {
     for (const c of CHECKPOINTS) {
       for (const id of c.storyIds) expect(id).toMatch(/^story-\d+$/);
