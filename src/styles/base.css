@@ -116,3 +116,34 @@
 .rise-in {
   animation: rise-in 520ms var(--ease-out-soft) both;
 }
+
+/* Bottom sheet motion */
+dialog.sheet[open] {
+  display: flex;
+  height: 100dvh;
+  max-height: 100dvh;
+  inset: 0;
+  align-items: flex-end;
+  animation: sheet-up 380ms var(--ease-out-soft) both;
+}
+dialog.sheet[open]::backdrop {
+  animation: fade-in 260ms ease both;
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+html:has(dialog[open]) {
+  overflow: hidden;
+}

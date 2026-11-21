@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Barlow_Condensed, Fraunces, Inter } from "next/font/google";
+import { GuideProvider } from "@/components/guide/guide-provider";
+import { ActionsProvider } from "@/components/shell/actions-provider";
+import { ServiceWorkerRegister } from "@/components/shell/sw-register";
 import { TabBar } from "@/components/shell/tab-bar";
 import "./globals.css";
 
@@ -51,8 +54,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`${fraunces.variable} ${barlow.variable} ${inter.variable} antialiased`}>
       <body>
-        <div className="min-h-dvh">{children}</div>
-        <TabBar />
+        <GuideProvider>
+          <ActionsProvider>
+            <div className="min-h-dvh">{children}</div>
+            <TabBar />
+            <ServiceWorkerRegister />
+          </ActionsProvider>
+        </GuideProvider>
       </body>
     </html>
   );

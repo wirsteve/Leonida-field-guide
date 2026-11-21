@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test --trace off",
-    "check": "npm run typecheck && npm run lint && npm run test"
+    "check": "npm run typecheck && npm run lint && npm run test && npm run content:validate",
+    "content:validate": "tsx --conditions=react-server --tsconfig tsconfig.json scripts/validate-content.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
