@@ -6,7 +6,7 @@ describe('recommendation priority (synthetic inputs)', () => {
     expect(rankRecommendations([
       'postponable', 'optional', 'preparation', 'irreversible',
       'exploration', 'current-stage', 'time-limited', 'missable',
-    ], priority => priority)).toEqual([
+    ] as const, priority => priority)).toEqual([
       'missable', 'irreversible', 'time-limited', 'preparation',
       'current-stage', 'optional', 'exploration', 'postponable',
     ])
