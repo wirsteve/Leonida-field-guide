@@ -160,3 +160,29 @@ it("uses generic postponement copy and never forwards authored timing explanatio
   expect(view.nextBestMove).toBeNull();
   expect(JSON.stringify(view)).not.toContain(later.public.guidance);
 });
+
+describe("readiness coverage", () => {
+  it.each([
+    { ...missable, verification: "partial" as const },
+    { ...missable, confidence: "low" as const },
+    { ...missable, evidence: [] },
+    { ...missable, expiresWhen: undefined },
+  ])("withholds a safety verdict when an outstanding risk is unresolved", (risk) => {
+    const dataset = data(stage, mission, risk);
+    expect(evaluateGuide(dataset, progress).readiness).toMatchObject({
+      status: "not-fully-verified", verification: "partial", blocking: [],
+    });
+    expect(checkMission(dataset, progress, { recordId: mission.id })).toMatchObject({
+      verdict: "unverified", tasks: [],
+    });
+    const completed = { ...progress, completed: [risk.id] };
+    expect(checkMission(dataset, completed, { recordId: mission.id }).verdict).toBe("go-ahead");
+  });
+
+  it("keeps hidden risk data from changing the current public verdict", () => {
+    const hidden = { ...missable, verification: "partial" as const, visibleWhen: { never: true } as const };
+    const dataset = data(stage, mission, hidden);
+    expect(evaluateGuide(dataset, progress).readiness.status).toBe("safe-to-advance");
+    expect(checkMission(dataset, progress, { recordId: mission.id }).verdict).toBe("go-ahead");
+  });
+});

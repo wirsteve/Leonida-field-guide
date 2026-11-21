@@ -31,10 +31,17 @@ export function readinessCoverage(
   entries: ReturnType<typeof eligibleGuide>["entries"],
   stageCoverage = currentStage(entries)?.verification,
 ) {
-  const disputedRisk = entries.some(({ record, projected }) =>
-    isOutstanding(projected) && (record.verification === "conflicted" || record.restricted.conflicts) &&
-    (record.expiresWhen || record.public.timing === "before-advancing"));
-  return disputedRisk ? "conflicted" : stageCoverage ?? "unverified";
+  const outstandingRisks = entries.filter(({ record, projected }) =>
+    isOutstanding(projected) && (record.expiresWhen || record.missable === "yes" ||
+      record.public.timing === "before-advancing"));
+  if (outstandingRisks.some(({ record }) => record.verification === "conflicted" || record.restricted.conflicts)) {
+    return "conflicted";
+  }
+  if (stageCoverage === "verified" && outstandingRisks.some(({ record, verified }) =>
+    !verified || (record.missable === "yes" && !record.expiresWhen))) {
+    return "partial";
+  }
+  return stageCoverage ?? "unverified";
 }
 
 const kinds: Partial<Record<PublicGuideRecord["kind"], Recommendation["kind"]>> = {
