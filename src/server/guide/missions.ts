@@ -1,7 +1,7 @@
 import "server-only";
 import type { CheckRequest, GuideDataset, IdentifyRequest, IdentifyResponse, MissionCheckResult,
   ProgressSnapshot, PublicGuideRecord, SuggestRequest, SuggestResponse } from "@/contracts";
-import { eligibleGuide, isOutstanding } from "../../engine/eligibility";
+import { eligibleGuide, hasVerifiedEvidence, isOutstanding } from "../../engine/eligibility";
 import { assessReadiness } from "../../engine/readiness-policy";
 import { requiredCompletions } from "../../engine/requirements";
 import { readinessCoverage } from "./evaluate";
@@ -38,26 +38,32 @@ export function suggestMissions(dataset: GuideDataset, { snapshot, query, limit 
   return { suggestions };
 }
 
-export function identifyMission(dataset: GuideDataset, { snapshot, query }: IdentifyRequest): IdentifyResponse {
-  const entries = missions(eligibleGuide(dataset, snapshot).entries)
-    .filter(({ record, verified }) => record.kind === "story-mission" && verified);
-  // An exact, user-supplied alias can identify an eligible neutral mission.
-  // Return its public label and keep these aliases out of suggestions and checks.
-  const match = uniqueMatch(entries, query, ({ record, projected }) =>
-    projected.nameWithheld ? record.public.aliases.map(normalize) : names(projected));
-  if (!match) return { matched: null, impliedComplete: [] };
-  const byId = new Map(entries.map(entry => [entry.record.id, entry.record]));
-  const confirmed = new Set<string>([match.record.id]);
+export function identifyMission(dataset: GuideDataset, { query }: IdentifyRequest): IdentifyResponse {
+  // Contract v1 (docs/CONTRACTS.md): onboarding identifies the last story mission the
+  // player says they COMPLETED by exact normalized title or verified alias, across ALL
+  // verified story missions, so a returning player can be reconciled from an empty
+  // snapshot. No prefix/fuzzy matching; every miss has the same shape.
+  // Suggestions and checks stay eligibility-only.
+  const candidates = dataset.records.filter(record => record.kind === "story-mission" && hasVerifiedEvidence(record));
+  const normalized = normalize(query);
+  const hits = candidates.filter(record => [record.public.name, ...record.public.aliases].map(normalize).includes(normalized));
+  if (hits.length !== 1) return { matched: null, impliedComplete: [] };
+  const match = hits[0];
+  const byId = new Map(candidates.map(record => [record.id, record]));
+  const confirmed = new Set<string>([match.id]);
   for (const id of confirmed) {
     const record = byId.get(id)!;
-    const requirements = [record.visibleWhen, record.availableWhen ?? record.visibleWhen];
-    for (const requirement of requirements) {
+    for (const requirement of [record.visibleWhen, record.availableWhen ?? record.visibleWhen]) {
       for (const predecessor of requiredCompletions(requirement)) {
         if (byId.has(predecessor)) confirmed.add(predecessor);
       }
     }
   }
-  return { matched: { recordId: match.record.id, name: match.projected.name }, impliedComplete: [...confirmed] };
+  // Echo the real title only when the player typed it (or it is name-safe); an alias
+  // match returns the neutral label so an alias can never disclose a withheld title.
+  const typedTitle = normalize(match.public.name) === normalized;
+  const name = typedTitle || match.public.nameSafeBeforeStart ? match.public.name : match.public.neutralLabel ?? "Story mission";
+  return { matched: { recordId: match.id, name }, impliedComplete: [...confirmed] };
 }
 
 export function checkMission(dataset: GuideDataset, snapshot: ProgressSnapshot,
