@@ -1,4 +1,5 @@
 import "fake-indexeddb/auto";
+import { openDB } from "idb";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createProgressStore, toProgressSnapshot } from "@/persistence";
 
@@ -42,6 +43,21 @@ describe("local progress store (synthetic progress)", () => {
     expect((await store.load()).cash.amount).toBeNull();
     expect(await store.importBackup(raw, "replace")).toMatchObject({ ok: true, state });
     expect(await store.load()).toEqual(state);
+  });
+
+  it("restores a validated replacement backup even when local storage is corrupted", async () => {
+    const state = await store.apply({ type: "set-cash", amount: 500 }, "Cash");
+    const backup = await store.exportBackup();
+    const database = await openDB("leonida-field-guide");
+    try {
+      await database.put("progress", { state: { schemaVersion: 1, cash: "corrupted" }, undo: {} }, "player");
+      await expect(store.load()).rejects.toThrow();
+      expect(await store.importBackup(backup, "merge")).toMatchObject({ ok: false });
+      expect(await store.importBackup(backup, "replace")).toMatchObject({ ok: true });
+      expect(await store.load()).toEqual(state);
+    } finally {
+      database.close();
+    }
   });
 
   it("merges missing progress without replacing locally recorded values", async () => {

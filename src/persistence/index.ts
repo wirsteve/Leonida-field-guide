@@ -47,15 +47,21 @@ export function createProgressStore(): ProgressStore {
     return connection;
   }
 
-  async function write(change: (value: StoredProgress) => StoredProgress, notify = true) {
+  async function write(
+    change: StoredProgress | ((value: StoredProgress) => StoredProgress),
+    notify = true,
+  ) {
     const db = await database();
     const transaction = db.transaction("progress", "readwrite");
     let updated: StoredProgress;
     try {
-      const stored = await transaction.store.get("player");
-      const current = stored ?? { state: emptyProgress(now()), undo: {} };
-      const state = playerStateSchema.parse(current.state);
-      updated = change({ state, undo: current.undo });
+      const stored = typeof change === "function" ? await transaction.store.get("player") : undefined;
+      if (typeof change === "function") {
+        const current = stored ?? { state: emptyProgress(now()), undo: {} };
+        updated = change({ state: playerStateSchema.parse(current.state), undo: current.undo });
+      } else {
+        updated = change;
+      }
       if (!stored || notify) {
         playerStateSchema.parse(updated.state);
         await transaction.store.put(updated, "player");
@@ -128,37 +134,41 @@ export function createProgressStore(): ProgressStore {
       const backup = parseBackup(file);
       if (!backup) return { ok: false, issues: [invalidBackup] };
       try {
-        const state = await write(current => {
-          if (mode === "replace") return { state: backup.state, undo: {} };
-          const incoming = backup.state;
-          const local = current.state;
-          const localNotes = new Set(local.notes.map(note => note.id));
-          const merged: PlayerState = {
-            ...local,
-            marks: { ...incoming.marks, ...local.marks },
-            discovered: { ...incoming.discovered, ...local.discovered },
-            collectibles: { ...incoming.collectibles, ...local.collectibles },
-            cash: {
-              amount: local.cash.amount ?? incoming.cash.amount,
-              updatedAt: local.cash.amount === null ? incoming.cash.updatedAt : local.cash.updatedAt,
-              target: local.cash.target ?? incoming.cash.target,
-            },
-            notes: [...incoming.notes.filter(note => !localNotes.has(note.id)), ...local.notes],
-            updatedAt: now(),
-          };
-          // Retain local history. Imported inverses describe a different state
-          // and cannot safely be replayed against a merged profile.
-          return { state: merged, undo: current.undo };
-        });
+        const state = mode === "replace"
+          ? await write({ state: backup.state, undo: {} })
+          : await mergeBackup(backup.state);
         return { ok: true, state, issues: [] };
       } catch {
         return { ok: false, issues: ["The backup could not be saved to this device."] };
       }
     },
-    reset: () => write(() => ({ state: emptyProgress(now()), undo: {} })),
+    reset: () => write({ state: emptyProgress(now()), undo: {} }),
     subscribe(listener) {
       listeners.add(listener);
       return () => { listeners.delete(listener); };
     },
   };
+
+  function mergeBackup(incoming: PlayerState) {
+    return write(current => {
+      const local = current.state;
+      const localNotes = new Set(local.notes.map(note => note.id));
+      const merged: PlayerState = {
+        ...local,
+        marks: { ...incoming.marks, ...local.marks },
+        discovered: { ...incoming.discovered, ...local.discovered },
+        collectibles: { ...incoming.collectibles, ...local.collectibles },
+        cash: {
+          amount: local.cash.amount ?? incoming.cash.amount,
+          updatedAt: local.cash.amount === null ? incoming.cash.updatedAt : local.cash.updatedAt,
+          target: local.cash.target ?? incoming.cash.target,
+        },
+        notes: [...incoming.notes.filter(note => !localNotes.has(note.id)), ...local.notes],
+        updatedAt: now(),
+      };
+      // Retain local history. Imported inverses describe a different state
+      // and cannot safely be replayed against a merged profile.
+      return { state: merged, undo: current.undo };
+    });
+  }
 }
