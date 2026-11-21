@@ -1,0 +1,44 @@
+/*
+ * Leonida Field Guide — design tokens
+ * "The Ultimate Leonida Field Manual": editorial strategy-guide hierarchy on a
+ * dark, cinematic coastal palette. Dark-mode first (the app is always dark;
+ * it is a night-time companion to a TV game).
+ */
+@theme {
+  /* Surfaces — midnight navy, layered */
+  --color-ink: #0b1219; /* page background, deepest */
+  --color-night: #101820; /* Midnight Navy */
+  --color-panel: #1d2830; /* Deep Panel */
+  --color-panel-2: #24333d; /* raised panel */
+  --color-panel-3: #2d3e49; /* pressed / selected */
+  --color-rule: rgb(242 238 229 / 0.09); /* hairlines */
+  --color-rule-strong: rgb(242 238 229 / 0.16);
+
+  /* Type */
+  --color-ivory: #f2eee5; /* Warm Ivory — primary text */
+  --color-ivory-2: #c9c3b6; /* secondary text (7.9:1 on night) */
+  --color-ivory-3: #948e83; /* tertiary / captions (4.6:1 on night) */
+
+  /* Accents */
+  --color-coral: #f08d70; /* do now / action */
+  --color-coral-deep: #e2694b;
+  --color-flare: #ff7a5c; /* last chance */
+  --color-sea: #76bcaf; /* safe / go ahead / optional */
+  --color-sea-deep: #4f978a;
+  --color-gold: #e4b66c; /* recommended / money */
+  --color-gold-deep: #c99643;
+  --color-slate: #8d9ba8; /* wait / postpone */
+
+  /* Type families (wired in layout.tsx via next/font) */
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-display: var(--font-barlow), "Arial Narrow", ui-sans-serif, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Radii */
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
