@@ -4,18 +4,19 @@ import { useMemo, useState } from "react";
 import { Check, ChevronRight, Flame, MapPin, Minus, Plus, Shuffle, Sparkles, Trophy } from "lucide-react";
 import type { PublicGuideRecord, RecordKind } from "@/contracts";
 import { useGuide } from "@/components/guide/guide-provider";
-import { CONFIDENCE_LABEL, KIND_LABEL, TRY_THIS_TAGS, isOutstanding, isTryThis } from "@/components/guide/labels";
+import { CONFIDENCE_LABEL, KIND_LABEL, TRY_THIS_TAGS, isFun, isOutstanding, isPastime, isTryThis } from "@/components/guide/labels";
 import { useActions } from "@/components/shell/actions-provider";
 import { PageHeader } from "@/components/shell/masthead";
 import { StatusBanner } from "@/components/shell/status-banner";
 import { SectionLabel, VerificationNote, formatMinutes } from "@/components/ui/primitives";
 import { cx } from "@/components/ui/cx";
 
-type Filter = "all" | "try" | "priority" | "unique" | "quick" | "missable" | "done";
+type Filter = "all" | "try" | "pastimes" | "priority" | "unique" | "quick" | "missable" | "done";
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all", label: "All" },
   { id: "try", label: "Try this" },
+  { id: "pastimes", label: "Pastimes" },
   { id: "priority", label: "Do first" },
   { id: "unique", label: "Unique" },
   { id: "quick", label: "Under 20 min" },
@@ -25,7 +26,8 @@ const FILTERS: { id: Filter; label: string }[] = [
 
 const CATEGORIES: { title: string; kinds: RecordKind[]; test?: (r: PublicGuideRecord) => boolean }[] = [
   { title: "Optional missions", kinds: ["side-mission"] },
-  { title: "Activities & minigames", kinds: ["activity"], test: (r) => !isTryThis(r) },
+  { title: "Pastimes", kinds: ["activity"], test: (r) => isPastime(r) },
+  { title: "Activities & minigames", kinds: ["activity"], test: (r) => !isFun(r) },
   { title: "Races", kinds: ["race"] },
   { title: "Encounters", kinds: ["encounter"] },
   { title: "Places", kinds: ["location"] },
@@ -41,6 +43,8 @@ function matches(record: PublicGuideRecord, filter: Filter, area: string | null)
   switch (filter) {
     case "try":
       return isTryThis(record) && record.status !== "closed";
+    case "pastimes":
+      return isPastime(record) && record.status !== "closed";
     case "priority":
       return isOutstanding(record) && (record.lastChance || record.timing === "now" || record.timing === "before-advancing");
     case "unique":
