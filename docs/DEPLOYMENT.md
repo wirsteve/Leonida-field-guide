@@ -40,3 +40,4 @@ Guide research lives in `src/content/guide/` and ships with each deploy. Updatin
 | "Showing your last saved guide" banner | You're offline. The app shows the last view the server authorized. Reconnect and tap Retry. |
 | Progress missing after reinstall | Deleting the Home Screen app deletes its storage. Import your last backup. |
 | Old version still showing | Close the app fully (swipe it away) and reopen. The new version loads on the next launch. |
+| Site didn't update after a merge | Vercel occasionally misses a push from GitHub. The next merge to `main` redeploys, or use *Deployments → ⋯ → Redeploy* in Vercel. |
