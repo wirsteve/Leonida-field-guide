@@ -17,3 +17,7 @@ Two agents work in this repository: Claude Code (lead, UI, content) and Codex (e
 - `docs/ARCHITECTURE.md`: the spoiler boundary. Guide research is server-only, and only `Public*` types reach the client.
 
 Never force-push over the other agent's commits. Run `npm run check && npm run build` before opening a PR.
+
+### No spoilers outside the server-only research
+
+The owner is playing the game. Commit messages, PR titles and bodies, issue comments, docs outside `docs/research/restricted/`, and any message to the owner must not name missions, characters, places, rewards or events beyond what the owner has already reached. Refer to content generically ("a Spoiler item", "a Chapter 2 optional job") or by opaque id.

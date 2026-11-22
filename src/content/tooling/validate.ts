@@ -32,6 +32,22 @@ const BANNED_PHRASES: RegExp[] = [
   /\bchapter (?:three|four|five|six|seven)\b/i,
 ];
 
+/**
+ * A record titled "Spoiler" hides its real title because the mission itself
+ * gives things away, so its copy must stay content-free: no tips, and guidance
+ * drawn only from this neutral set.
+ */
+export const SPOILER_GUIDANCE = new Set([
+  "Take it when the text arrives.",
+  "Take it when he gets in touch.",
+  "Take it when she gets in touch.",
+  "Take it when it shows up.",
+  "Head over when he gets in touch.",
+  "Do this soon. It won't wait forever.",
+  "Time-limited. Take it as soon as the message arrives.",
+]);
+const SPOILER_SUMMARY = /^(?:[A-Z][a-z]+ (?:has another job for you|has a job offer waiting|has another job waiting|wants to see you|gets a message)|One of your crew has a job for you)\.$/;
+
 /** "Chapter N" mentions are only allowed up to the record's own chapter. */
 function laterChapterMention(text: string, ownChapter: number): number | null {
   for (const match of text.matchAll(/\bchapter\s+0*(\d+)\b/gi)) {
@@ -140,6 +156,13 @@ export function validateDataset(input: unknown): { dataset: GuideDataset | null;
     if (record.kind === "story-mission" && !/^story-\d+$/.test(record.id)) at('story mission ids must be opaque ("story-<n>")');
     if (record.expiresWhen && !record.public.lastChanceCopy) at("expiring record should provide lastChanceCopy", "warning");
     if (record.public.money?.payout && record.evidence.length === 0) at("payout stated without evidence");
+
+    if (record.public.name === "Spoiler") {
+      if (record.public.tips?.length) at("'Spoiler' records may not have tips");
+      if (!SPOILER_GUIDANCE.has(record.public.guidance)) at(`'Spoiler' guidance must be neutral, got "${record.public.guidance}"`);
+      if (!SPOILER_SUMMARY.test(record.public.summary)) at(`'Spoiler' summary must be neutral, got "${record.public.summary}"`);
+      if (record.public.lastChanceCopy && !/^Last chance: do this before your next story mission\.$/.test(record.public.lastChanceCopy)) at("'Spoiler' last-chance copy must be neutral");
+    }
 
     // Spoiler lint.
     const strings = publicStrings(record);

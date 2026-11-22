@@ -75,9 +75,8 @@ export const chapter2Records: GuideRecord[] = [
     {
       name: "Spoiler",
       // Real title gives something away (player preference): see TITLE_NOTES.
-      summary: "Kyle's follow-up job, sent by text after the farm visit.",
-      guidance: "You don't have to pay for the delivery. Taking it by force is an option.",
-      tips: ["If you're short on cash, don't hand over money here. There's another way to get the job done."],
+      summary: "Kyle has another job for you.",
+      guidance: "Take it when he gets in touch.",
       uniqueExperience: true,
       area: undefined,
     },
@@ -161,8 +160,8 @@ export const chapter2Records: GuideRecord[] = [
     {
       name: "Spoiler",
       // Real title gives something away (player preference): see TITLE_NOTES.
-      summary: "Billy's follow-up job, sent by text after the race.",
-      guidance: "Take it when the text arrives. It's a good payday for the time.",
+      summary: "Billy has another job for you.",
+      guidance: "Take it when the text arrives.",
       uniqueExperience: true,
       timing: "now",
       area: "kelly-county",
@@ -224,8 +223,8 @@ export const chapter2Records: GuideRecord[] = [
     {
       name: "Spoiler",
       // Real title gives something away (player preference): see TITLE_NOTES.
-      summary: "A text to Jason about a job out in the country.",
-      guidance: "When the text arrives, take it as Jason. It opens up a new way to earn.",
+      summary: "Jason has a job offer waiting.",
+      guidance: "Take it when the text arrives.",
       uniqueExperience: true,
       area: undefined,
     },
@@ -268,8 +267,8 @@ export const chapter2Records: GuideRecord[] = [
     {
       name: "Spoiler",
       // Real title gives something away (player preference): see TITLE_NOTES.
-      summary: "Moses has something waiting for you next to his shop.",
-      guidance: "Pick it up before you sell or register anything else there.",
+      summary: "Moses wants to see you.",
+      guidance: "Head over when he gets in touch.",
       uniqueExperience: true,
     },
   ),
