@@ -54,6 +54,16 @@ export function isTryThis(record: Pick<PublicGuideRecord, "tags"> | null | undef
   return Boolean(record?.tags.includes("try-this"));
 }
 
+/** Classic leisure activities (golf, pool, hoops…): fun, never part of the story route. */
+export function isPastime(record: Pick<PublicGuideRecord, "tags"> | null | undefined): boolean {
+  return Boolean(record?.tags.includes("pastime"));
+}
+
+/** Anything that's purely for fun: stunts, challenge ideas and pastimes. */
+export function isFun(record: Pick<PublicGuideRecord, "tags"> | null | undefined): boolean {
+  return isTryThis(record) || isPastime(record);
+}
+
 export const TRY_THIS_TAGS: Record<string, string> = {
   chaos: "Chaos",
   stunt: "Stunt",

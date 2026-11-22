@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useGuide } from "@/components/guide/guide-provider";
-import { isTryThis } from "@/components/guide/labels";
+import { isFun } from "@/components/guide/labels";
 import { SurpriseButton } from "@/components/explore/explore-screen";
 import { Masthead } from "@/components/shell/masthead";
 import { StatusBanner } from "@/components/shell/status-banner";
@@ -17,7 +17,7 @@ import { ExploreTeaser, MoneySnapshot } from "./snapshots";
 export function HomeScreen() {
   const { evaluation, state } = useGuide();
   const onboarded = state?.onboarding.status === "complete";
-  const tryThisIds = new Set((evaluation?.records ?? []).filter(isTryThis).map((r) => r.id));
+  const tryThisIds = new Set((evaluation?.records ?? []).filter(isFun).map((r) => r.id));
   // Progress first: a "Try this" stunt only leads Home when nothing else is outstanding.
   const progressQueue = (evaluation?.queue ?? []).filter((q) => !tryThisIds.has(q.recordId ?? ""));
   const nextMove = progressQueue.find((q) => q.priority !== "wait") ?? evaluation?.nextBestMove ?? null;
@@ -77,7 +77,7 @@ export function HomeScreen() {
             <SectionLabel>Explore</SectionLabel>
             <ExploreTeaser evaluation={evaluation} />
             {(() => {
-              const fun = evaluation.records.filter(isTryThis);
+              const fun = evaluation.records.filter(isFun);
               return fun.length > 0 ? (
                 <div className="mt-3 flex items-center justify-between gap-3 rounded-[var(--radius-card)] border border-coral/25 bg-coral/8 py-2 pl-4 pr-2">
                   <p className="text-[0.9rem] text-ivory-2">Bored? Do something stupid.</p>
