@@ -55,6 +55,16 @@ test.describe("§2 player profile & onboarding reconciliation", () => {
     await page.getByRole("button", { name: "Find it" }).click();
     await expect(page.getByText("We couldn't confirm that name.")).toBeVisible();
   });
+
+  test("a catch-up link advances story progress in one tap; a bad link changes nothing", async ({ page }) => {
+    await page.goto("/catch-up?to=nope");
+    await expect(page.getByText("That link didn't work.")).toBeVisible();
+    await setup(page);
+    await page.goto("/catch-up?to=cp-214");
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByText("Progress updated")).toBeVisible();
+    await expect(main(page).getByRole("region", { name: "Cash plan" })).toBeVisible();
+  });
 });
 
 test.describe("§7–8 navigation & Home", () => {
