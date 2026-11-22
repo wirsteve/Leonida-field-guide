@@ -54,8 +54,13 @@ function Stat({ value, label }: { value: number; label: string }) {
 
 function MissionList({ title, records }: { title: string; records: PublicGuideRecord[] }) {
   const { mark, openRecord } = useActions();
+  const [showAll, setShowAll] = useState(false);
   if (records.length === 0) return null;
-  const sorted = [...records].sort((a, b) => Number(a.status === "completed") - Number(b.status === "completed"));
+  // Open items first, then the most recently finished. Older finished ones fold away.
+  const open = records.filter((r) => r.status !== "completed");
+  const done = records.filter((r) => r.status === "completed").reverse();
+  const hidden = showAll ? 0 : Math.max(0, done.length - RECENT_DONE);
+  const sorted = [...open, ...done.slice(0, done.length - hidden)];
   return (
     <section className="mt-8">
       <SectionLabel>{title}</SectionLabel>
@@ -83,9 +88,20 @@ function MissionList({ title, records }: { title: string; records: PublicGuideRe
           );
         })}
       </ul>
+      {hidden > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowAll(true)}
+          className="tap mt-2 flex min-h-11 w-full items-center justify-center rounded-xl text-[0.875rem] font-medium text-sea hover:bg-panel/60"
+        >
+          Show {hidden} earlier completed
+        </button>
+      )}
     </section>
   );
 }
+
+const RECENT_DONE = 3;
 
 function Timeline() {
   const { state, undo } = useGuide();

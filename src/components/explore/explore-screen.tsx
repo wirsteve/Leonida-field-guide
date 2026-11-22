@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ChevronRight, Flame, MapPin, Minus, Plus, Shuffle, Sparkles, Trophy } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Flame, MapPin, Minus, Plus, Shuffle, Sparkles, Trophy } from "lucide-react";
 import type { PublicGuideRecord, RecordKind } from "@/contracts";
 import { useGuide } from "@/components/guide/guide-provider";
 import { CONFIDENCE_LABEL, KIND_LABEL, TRY_THIS_TAGS, isFun, isOutstanding, isPastime, isTryThis } from "@/components/guide/labels";
@@ -67,6 +67,12 @@ export function ExploreScreen() {
 
   const records = useMemo(() => (evaluation?.records ?? []).filter((r) => EXPLORE_KINDS.has(r.kind)), [evaluation]);
   const visible = records.filter((r) => matches(r, filter, area));
+  // In the broad "All" view, long sections start collapsed so the page stays scannable.
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
+  // Only fold when it hides a meaningful number of rows (never "Show 1 more").
+  const limitFor = (key: string, n: number, total: number) =>
+    filter === "all" && !expanded.has(key) && total > n + 2 ? n : Infinity;
+  const expand = (key: string) => setExpanded((prev) => new Set(prev).add(key));
   const tryThis = visible.filter(isTryThis);
   const unique = evaluation?.progress.uniqueExperienced ?? 0;
   const official = records.filter((r) => r.officialCompletion === "yes" && r.status === "completed").length;
@@ -112,17 +118,22 @@ export function ExploreScreen() {
         {CATEGORIES.map((cat, index) => {
           const items = visible.filter((r) => cat.kinds.includes(r.kind) && (cat.test ? cat.test(r) : true));
           // Progress-related optional missions first, then the fun stuff.
-          const fun = index === 0 && tryThis.length > 0 ? <TryThisSection items={tryThis} /> : null;
+          const fun =
+            index === 0 && tryThis.length > 0 ? (
+              <TryThisSection items={tryThis} limit={limitFor("try-this", 4, tryThis.length)} onMore={() => expand("try-this")} />
+            ) : null;
+          const limit = limitFor(cat.title, 6, items.length);
           if (items.length === 0) return fun ? <div key="try-this">{fun}</div> : null;
           return (
             <div key={cat.title} className="space-y-8">
             <section>
               <SectionLabel>{cat.title}</SectionLabel>
               <ul className="divide-y divide-rule overflow-hidden rounded-[var(--radius-card)] border border-rule">
-                {items.map((r) => (
+                {items.slice(0, limit).map((r) => (
                   <ExploreRow key={r.id} record={r} />
                 ))}
               </ul>
+              {items.length > limit && <MoreButton count={items.length - limit} onClick={() => expand(cat.title)} />}
             </section>
             {fun}
             </div>
@@ -267,7 +278,19 @@ export function SurpriseButton({ items, label = "Surprise me" }: { items: Public
 }
 
 /** "Try this": viral, community-discovered sandbox fun. Not missions, not 100%. */
-function TryThisSection({ items }: { items: PublicGuideRecord[] }) {
+function MoreButton({ count, onClick }: { count: number; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="tap mt-2 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl text-[0.875rem] font-medium text-sea hover:bg-panel/60"
+    >
+      Show {count} more <ChevronDown size={16} aria-hidden />
+    </button>
+  );
+}
+
+function TryThisSection({ items, limit, onMore }: { items: PublicGuideRecord[]; limit: number; onMore: () => void }) {
   const { openRecord, mark } = useActions();
   return (
     <section aria-labelledby="try-this">
@@ -282,7 +305,7 @@ function TryThisSection({ items }: { items: PublicGuideRecord[] }) {
         Stunts players have shared since launch, plus challenge ideas built on real mechanics. Pure fun, with no effect on your progress.
       </p>
       <ul className="space-y-2.5">
-        {items.map((r) => {
+        {items.slice(0, limit).map((r) => {
           const done = r.status === "completed";
           const tags = r.tags.map((t) => TRY_THIS_TAGS[t]).filter(Boolean);
           return (
@@ -320,6 +343,7 @@ function TryThisSection({ items }: { items: PublicGuideRecord[] }) {
           );
         })}
       </ul>
+      {items.length > limit && <MoreButton count={items.length - limit} onClick={onMore} />}
     </section>
   );
 }

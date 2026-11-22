@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { useGuide } from "@/components/guide/guide-provider";
 import { isFun, isOutstanding } from "@/components/guide/labels";
 import { CashPlan, cashGoalOf } from "@/components/money/cash-plan";
+import { AskBox } from "@/components/ask/ask-box";
 import { SurpriseButton } from "@/components/explore/explore-screen";
 import { Masthead } from "@/components/shell/masthead";
 import { StatusBanner } from "@/components/shell/status-banner";
@@ -45,6 +46,7 @@ export function HomeScreen() {
       )}
 
       <QuickActions />
+      {onboarded && <AskBox />}
 
       <div id="next-move" className="mt-6 scroll-mt-4">
         {!evaluation && <HeroSkeleton />}

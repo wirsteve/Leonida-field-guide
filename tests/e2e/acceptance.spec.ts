@@ -107,6 +107,19 @@ test.describe("§7–8 navigation & Home", () => {
     await expect(page.getByRole("dialog").getByText("What did you just finish?")).toBeVisible();
   });
 
+  test("Ask the guide answers common questions offline and opens the answer", async ({ page }) => {
+    await setup(page);
+    const ask = main(page).getByRole("region", { name: "Ask the guide" });
+    await ask.getByRole("button", { name: "How do I make money?" }).click();
+    await expect(ask.getByText("Answer")).toBeVisible();
+    await expect(ask.getByText(/Best way to earn now|to go to reach/)).toBeVisible();
+    await ask.getByRole("button", { name: "Clear" }).click();
+    await ask.getByLabel("Ask the guide").fill("where can I play golf");
+    await ask.getByLabel("Ask the guide").press("Enter");
+    await ask.getByRole("button", { name: /golf/i }).first().click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+  });
+
   test("mark complete, then undo", async ({ page }) => {
     await setup(page);
     await page.locator('section[aria-labelledby="next-move-title"]').getByRole("button", { name: /Mark complete/ }).click();
