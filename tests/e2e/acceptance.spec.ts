@@ -150,8 +150,12 @@ test.describe("§11 money", () => {
     await sheet.getByLabel("Cash on hand").fill("9000");
     await sheet.getByLabel("Savings goal").fill("15000");
     await sheet.getByRole("button", { name: "Save" }).click();
-    await expect(main(page).getByText("$9,000")).toBeVisible();
+    await expect(main(page).getByText("$9,000").first()).toBeVisible();
     await expect(page.getByText(/Goal \$15,000/)).toBeVisible();
+    const plan = main(page).getByRole("region", { name: "Cash plan" });
+    await expect(plan.getByText("Your plan to $15,000")).toBeVisible();
+    await expect(plan.getByText("$6,000")).toBeVisible();
+    await expect(plan.getByRole("listitem").first()).toBeVisible();
   });
 });
 

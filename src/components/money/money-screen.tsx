@@ -9,6 +9,8 @@ import { StatusBanner } from "@/components/shell/status-banner";
 import { PageHeader } from "@/components/shell/masthead";
 import { SectionLabel, VerificationNote, formatCash, formatMinutes } from "@/components/ui/primitives";
 import { cx } from "@/components/ui/cx";
+import { isOutstanding } from "@/components/guide/labels";
+import { CashPlan, cashGoalOf } from "./cash-plan";
 
 const GRIND_COPY = {
   worthwhile: { title: "Grinding is worth it right now", tone: "text-gold" },
@@ -34,6 +36,9 @@ export function MoneyScreen() {
   const best = money?.bestMethodId ? methods.find((m) => m.id === money.bestMethodId) : undefined;
   const gap = money && money.target !== null && money.cash !== null ? Math.max(0, money.target - money.cash) : null;
   const verdict = GRIND_COPY[money?.grind ?? "unknown"];
+  // A story cash requirement the player can see takes precedence; otherwise the goal they set.
+  const goalRecord = evaluation?.records.find((r) => cashGoalOf(r) !== null && isOutstanding(r));
+  const planTarget = (goalRecord ? cashGoalOf(goalRecord) : null) ?? money?.target ?? null;
 
   return (
     <main className="page">
@@ -72,6 +77,12 @@ export function MoneyScreen() {
           <p className={cx("mt-3 text-[0.9rem] font-medium", verdict.tone)}>{verdict.title}.</p>
         </div>
       </section>
+
+      {evaluation && planTarget !== null && (
+        <div className="mt-5">
+          <CashPlan evaluation={evaluation} target={planTarget} />
+        </div>
+      )}
 
       {methods.length > 0 && (
         <div className="mt-8">

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useGuide } from "@/components/guide/guide-provider";
-import { isFun } from "@/components/guide/labels";
+import { isFun, isOutstanding } from "@/components/guide/labels";
+import { CashPlan, cashGoalOf } from "@/components/money/cash-plan";
 import { SurpriseButton } from "@/components/explore/explore-screen";
 import { Masthead } from "@/components/shell/masthead";
 import { StatusBanner } from "@/components/shell/status-banner";
@@ -21,6 +22,7 @@ export function HomeScreen() {
   // Progress first: a "Try this" stunt only leads Home when nothing else is outstanding.
   const progressQueue = (evaluation?.queue ?? []).filter((q) => !tryThisIds.has(q.recordId ?? ""));
   const nextMove = progressQueue.find((q) => q.priority !== "wait") ?? evaluation?.nextBestMove ?? null;
+  const goalRecord = evaluation?.records.find((r) => cashGoalOf(r) !== null && isOutstanding(r));
   const queue = progressQueue.filter((q) => q.id !== nextMove?.id && q.priority !== "wait" && q.kind !== "money").slice(0, 4);
 
   return (
@@ -47,6 +49,11 @@ export function HomeScreen() {
       <div id="next-move" className="mt-6 scroll-mt-4">
         {!evaluation && <HeroSkeleton />}
         {nextMove && <NextMoveHero move={nextMove} />}
+        {evaluation && goalRecord && (
+          <div className="mt-3">
+            <CashPlan evaluation={evaluation} target={cashGoalOf(goalRecord)!} compact />
+          </div>
+        )}
         {evaluation && !nextMove && (
           <section className="rounded-[1.6rem] border border-rule bg-panel/70 p-5">
             <p className="eyebrow text-ivory-2">Your next best move</p>

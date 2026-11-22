@@ -184,7 +184,7 @@ function prep(
   name: string,
   visibleWhen: Requirement,
   copy: { summary: string; guidance: string; lastChanceCopy?: string; tips?: string[] },
-  opts: { expiresWhen?: Requirement; confidence: "high" | "medium"; evidence: GuideRecord["evidence"]; notes: string; timing?: "before-advancing" | "now" },
+  opts: { expiresWhen?: Requirement; confidence: "high" | "medium"; evidence: GuideRecord["evidence"]; notes: string; timing?: "before-advancing" | "now"; tags?: string[] },
 ): GuideRecord {
   return {
     id,
@@ -200,7 +200,7 @@ function prep(
       guidance: copy.guidance,
       tips: copy.tips,
       lastChanceCopy: copy.lastChanceCopy,
-      tags: ["prepare"],
+      tags: ["prepare", ...(opts.tags ?? [])],
       uniqueExperience: false,
       officialCompletion: "no",
       timing: opts.timing ?? "before-advancing",
@@ -266,7 +266,7 @@ export const laterPrep: GuideRecord[] = [
       summary: "An upcoming story step needs $75,000 from your bank.",
       guidance: "Get $75,000 into BuckMe. The jobs and fences you have now are the way there.",
     },
-    { confidence: "medium", evidence: [cite(PPX_FULL, "Pay Abe's Fee: mandatory $75,000 payment after Party Hard.")], notes: "Pay Abe's Fee ($75k) is mandatory to advance (PPX)." },
+    { confidence: "medium", evidence: [cite(PPX_FULL, "Pay Abe's Fee: mandatory $75,000 payment after Party Hard.")], notes: "Pay Abe's Fee ($75k) is mandatory to advance (PPX).", tags: ["cash-goal:75000"] },
   ),
   prep(
     "prep-wrap-up-ch4",

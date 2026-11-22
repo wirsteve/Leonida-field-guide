@@ -6,6 +6,7 @@ import { CONFIDENCE_LABEL, KIND_LABEL, isOutstanding, sourceLine, triLabel } fro
 import { useActions } from "@/components/shell/actions-provider";
 import { Button, formatCash, formatMinutes } from "@/components/ui/primitives";
 import { Sheet } from "@/components/ui/sheet";
+import { CashPlan, cashGoalOf } from "@/components/money/cash-plan";
 
 export function RecordSheet({ recordId, onClose }: { recordId?: string; onClose: () => void }) {
   const record = useRecord(recordId);
@@ -18,6 +19,7 @@ export function RecordSheet({ recordId, onClose }: { recordId?: string; onClose:
   const outstanding = isOutstanding(record);
   const queued = evaluation?.queue.find((q) => q.recordId === record.id);
   const minutes = formatMinutes(record.estimatedMinutes);
+  const cashGoal = cashGoalOf(record);
 
   return (
     <Sheet
@@ -110,6 +112,12 @@ export function RecordSheet({ recordId, onClose }: { recordId?: string; onClose:
           </p>
           {record.money.payout?.note && <p className="mt-1 text-[0.8125rem] text-ivory-3">{record.money.payout.note}</p>}
           {record.money.cooldownNote && <p className="mt-1 text-[0.8125rem] text-ivory-3">{record.money.cooldownNote}</p>}
+        </div>
+      )}
+
+      {cashGoal && evaluation && outstanding && (
+        <div className="mt-4">
+          <CashPlan evaluation={evaluation} target={cashGoal} />
         </div>
       )}
 
