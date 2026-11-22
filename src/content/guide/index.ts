@@ -4,6 +4,7 @@ import { chapter2Records } from "./chapter2";
 import { CH1_LAST, stages, storyRecords } from "./story";
 import { tryThisRecords } from "./try-this";
 import { challengeIdeas } from "./challenges";
+import { tryThisRecords2 } from "./try-this-2";
 import { completionRecords } from "./completion";
 import { laterPrep, laterStages, laterStory } from "./chapters345";
 import { side345 } from "./side345";
@@ -29,7 +30,7 @@ const dataset: GuideDataset = {
     { id: "port-gellhorn", label: "Port Gellhorn", visibleWhen: { completed: CH1_LAST } },
     { id: "kelly-county", label: "Kelly County", visibleWhen: { completed: CH1_LAST } },
   ],
-  records: [...stages, ...laterStages, ...allStory, ...chapter2Records, ...side345, ...laterPrep, ...tryThisRecords, ...challengeIdeas, ...completionRecords(storyByName)],
+  records: [...stages, ...laterStages, ...allStory, ...chapter2Records, ...side345, ...laterPrep, ...tryThisRecords, ...tryThisRecords2, ...challengeIdeas, ...completionRecords(storyByName)],
 };
 
 export function loadGuideDataset(): GuideDataset {
