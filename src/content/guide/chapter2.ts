@@ -362,6 +362,7 @@ export const chapter2Records: GuideRecord[] = [
       guidance: "Reach $15,000 and keep it in BuckMe. Mark this done once you're there.",
       tips: ["The optional jobs around town are the quickest way there.", "It isn't confirmed whether pocket cash counts, so bank it to be safe."],
       timing: "before-advancing",
+      tags: ["cash-goal:15000"],
     },
   ),
   record(
