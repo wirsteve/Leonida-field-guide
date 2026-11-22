@@ -1,6 +1,8 @@
 "use client";
 
-import { ChevronRight, Save } from "lucide-react";
+import Link from "next/link";
+import { ChevronRight, Save, Trophy } from "lucide-react";
+import type { GuideEvaluation } from "@/contracts";
 import type { StrategySection } from "@/contracts";
 import { useGuide } from "@/components/guide/guide-provider";
 import { ReadinessPanel } from "@/components/home/readiness-panel";
@@ -20,6 +22,8 @@ const ORDER: StrategySection["kind"][] = [
   "postpone",
   "saves",
 ];
+
+const LONG_HAUL = new Set<string>(["collectible-set", "achievement"]);
 
 const VERIFICATION_COPY = {
   verified: "Research for this stage is verified.",
@@ -62,6 +66,8 @@ export function StrategyScreen() {
         ))}
       </div>
 
+      {evaluation && <LongHaul evaluation={evaluation} />}
+
       {empty.length > 0 && evaluation && (
         <div className="mt-9 rounded-[var(--radius-card)] border border-dashed border-rule-strong p-4">
           <p className="eyebrow text-ivory-3">Nothing to act on</p>
@@ -92,9 +98,22 @@ function regroup(evaluation: ReturnType<typeof useGuide>["evaluation"]): Strateg
   const tryThis = new Set(evaluation.records.filter((r) => r.tags.includes("try-this") || r.tags.includes("pastime")).map((r) => r.id));
   const isMoney = (id?: string) => (id ? kindOf.get(id) === "money-method" : false);
   const isFun = (id?: string) => (id ? tryThis.has(id) : false);
-  const sections = evaluation.strategy.sections.map((section) =>
+  // Long-haul goals (100% checklist counters, trophies) never belong in "what to do next";
+  // they live on Explore, with a pointer below.
+  const checklist = new Set(evaluation.records.filter((r) => r.tags.includes("100%")).map((r) => r.id));
+  const isLongHaul = (id?: string) => (id ? LONG_HAUL.has(kindOf.get(id) ?? "stage") || checklist.has(id) : false);
+  let sections = evaluation.strategy.sections.map((section) =>
     section.kind === "recommended-order" || section.kind === "exploration"
-      ? { ...section, items: section.items.filter((i) => !isMoney(i.recordId) && !isFun(i.recordId)) }
+      ? { ...section, items: section.items.filter((i) => !isMoney(i.recordId) && !isFun(i.recordId) && !isLongHaul(i.recordId)) }
+      : section,
+  );
+  // An item shown in its own section (optional highlights, exploration) isn't repeated in the order.
+  const elsewhere = new Set(
+    sections.filter((s) => s.kind !== "recommended-order").flatMap((s) => s.items.map((i) => i.recordId)),
+  );
+  sections = sections.map((section) =>
+    section.kind === "recommended-order"
+      ? { ...section, items: section.items.filter((i) => !i.recordId || !elsewhere.has(i.recordId)) }
       : section,
   );
   const money = evaluation.money.methodIds
@@ -143,5 +162,32 @@ function Section({ section, index }: { section: StrategySection; index: number }
         ))}
       </ol>
     </section>
+  );
+}
+
+/** A one-line pointer to the long-haul goals instead of listing them in the plan. */
+function LongHaul({ evaluation }: { evaluation: GuideEvaluation }) {
+  const open = evaluation.records.filter(
+    (r) => (LONG_HAUL.has(r.kind) || r.tags.includes("100%")) && (r.status === "available" || r.status === "unsure"),
+  );
+  if (open.length === 0) return null;
+  const checklist = open.filter((r) => r.kind !== "achievement").length;
+  const trophies = open.filter((r) => r.kind === "achievement").length;
+  const missable = open.some((r) => r.missable === "yes");
+  return (
+    <Link
+      href="/explore"
+      className="tap mt-9 flex items-center gap-3 rounded-[var(--radius-card)] border border-rule bg-panel/60 p-4 hover:bg-panel"
+    >
+      <Trophy size={20} className="shrink-0 text-gold" aria-hidden />
+      <span className="min-w-0 flex-1">
+        <span className="block text-[0.95rem] font-medium text-ivory">Long-term goals</span>
+        <span className="mt-0.5 block text-[0.8125rem] text-ivory-3">
+          {[checklist && `${checklist} 100% checklist items`, trophies && `${trophies} trophies`].filter(Boolean).join(" · ")}
+          {missable ? "" : " · nothing missable, so no rush"}
+        </span>
+      </span>
+      <ChevronRight size={18} className="shrink-0 text-ivory-3" aria-hidden />
+    </Link>
   );
 }
