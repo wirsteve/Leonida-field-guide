@@ -113,7 +113,7 @@ export const side345: GuideRecord[] = [
   rec({
     id: "side-kyle-3", seq: 302.6, visibleWhen: done("side-collect-chemicals", S(301)),
     evidence: [cite(ppx("buddy-check-on-kyle"), "Kyle texts after a long delay (around mid Chapter 3); either outcome counts for Strangers & Freaks."), cite(gbs("buddy"), "Final Kyle mission.")],
-    pub: { name: "Buddy?", summary: "Kyle gets back in touch after a long silence.", guidance: "Head out to the farm when he texts. Either way it goes, it counts toward the stranger trophy.", area: "kelly-county" },
+    pub: { name: "Buddy?", summary: "Kyle gets back in touch after a long silence.", guidance: "Head out to the farm when he texts. It counts toward the stranger trophy.", area: "kelly-county" },
   }),
   rec({
     id: "side-billy-3", seq: 316.1, visibleWhen: done("side-twist-wrist", S(301)),
@@ -148,12 +148,12 @@ export const side345: GuideRecord[] = [
   rec({
     id: "side-andy-4", seq: 309.4, visibleWhen: done("side-andy-3"),
     evidence: [cite(ppx("read-the-label-retrieve-the-cellerica-van"), "After Peach!, play as Lucia; pays $1,800."), cite(gbs("read-the-label"), "Andy 4.")],
-    pub: { name: "Spoiler", summary: "The next job in Lucia's business questline.", guidance: "Play as Lucia to pick it up." },
+    pub: { name: "Spoiler", summary: "Lucia has another job waiting.", guidance: "Take it when it shows up." },
   }),
   rec({
     id: "side-andy-5", seq: 309.5, visibleWhen: done("side-andy-4"),
     evidence: [cite(ppx("puff-puff-pass-meet-at-the-warehouse"), "Final Andy job; pays $10,000 plus the $5,000 fee back; Road to Rehabilitation trophy."), cite(gbs("puff-puff-pass"), "Andy 5.")],
-    pub: { name: "Spoiler", summary: "The last job in Lucia's business questline.", guidance: "Finish it for a trophy and a good payday.", money: money({ payout: { min: 10000, max: 10000 }, repeatability: "one-time", risk: "medium" }) },
+    pub: { name: "Spoiler", summary: "Lucia has another job waiting.", guidance: "Take it when it shows up.", money: money({ payout: { min: 10000, max: 10000 }, repeatability: "one-time", risk: "medium" }) },
   }),
   rec({
     id: "side-yasmani-jewelry", seq: 312.1, visibleWhen: done(S(312)),
@@ -232,7 +232,7 @@ export const side345: GuideRecord[] = [
   rec({
     id: "side-pete-1", seq: 403.2, visibleWhen: done(S(403)),
     evidence: [cite(ppx("the-last-mile-passing-the-torch-recover-petes-plane"), "Pete calls Jason early in Ch4; $12,000; unique rifle on the hangar table (safe 3718)."), cite(gbs("the-last-mile-passing-the-torch"), "Counts for Strangers & Freaks.")],
-    pub: { name: "Spoiler", summary: "A pilot has flying work for Jason.", guidance: "Take it. It starts a well-paid questline that counts toward the stranger trophy.", tips: ["Check the hangar table before you leave."], money: money({ payout: { min: 12000, max: 12000 }, repeatability: "one-time", risk: "medium", efficiency: 4 }) },
+    pub: { name: "Spoiler", summary: "Jason has a job offer waiting.", guidance: "Take it when he gets in touch.", money: money({ payout: { min: 12000, max: 12000 }, repeatability: "one-time", risk: "medium", efficiency: 4 }) },
   }),
   rec({
     id: "side-pete-2", seq: 403.3, visibleWhen: done("side-pete-1"),
@@ -263,13 +263,13 @@ export const side345: GuideRecord[] = [
     id: "side-bad-driver", seq: 407.1, visibleWhen: done(S(407)), expiresWhen: { completed: S(420) },
     evidence: [cite(ppx("bad-driver-find-felipe"), "After Party Hard; permanently gone once Power Play starts."), cite(gbs("bad-driver-find-felipe"), "Missable optional mission.")],
     notes: "Gone when Power Play starts (warning shows before it via last chance).",
-    pub: { name: "Spoiler", summary: "A lead from one of your crew about someone you've been looking for.", guidance: "Do this soon. It won't wait forever.", lastChanceCopy: "Last chance: do this before your next story mission.", timing: "before-advancing" },
+    pub: { name: "Spoiler", summary: "One of your crew has a job for you.", guidance: "Do this soon. It won't wait forever.", lastChanceCopy: "Last chance: do this before your next story mission.", timing: "before-advancing" },
   }),
   rec({
     id: "side-shayna", seq: 405.1, visibleWhen: done(S(405)), missable: "yes",
     evidence: [cite(ppx("this-is-a-free-call-from-pick-up-shayna"), "Lucia only; time-limited; up to ~$6,500 in goods.")],
     notes: "Chapter conflict: GTABase puts it in Ch3.",
-    pub: { name: "Spoiler", summary: "An old friend messages Lucia when she's near Hamlet.", guidance: "Time-limited. Take it as soon as the message arrives.", timing: "now" },
+    pub: { name: "Spoiler", summary: "Lucia gets a message.", guidance: "Time-limited. Take it as soon as the message arrives.", timing: "now" },
   }),
   rec({
     id: "side-wheres-the-money", seq: 426.1, visibleWhen: done(S(426)), confidence: "high",
