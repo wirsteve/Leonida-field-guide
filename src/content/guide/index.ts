@@ -9,6 +9,7 @@ import { pastimes } from "./pastimes";
 import { completionRecords } from "./completion";
 import { laterPrep, laterStages, laterStory } from "./chapters345";
 import { side345 } from "./side345";
+import { side12 } from "./side12";
 
 /**
  * Authored guide dataset — SERVER-ONLY (owner: Claude).
@@ -23,7 +24,7 @@ const storyByName = new Map(
 );
 
 const dataset: GuideDataset = {
-  contentVersion: "2026.11.22-full.2",
+  contentVersion: "2026.11.22-full.3",
   generatedOn: "2026-11-21",
   coverageNote:
     "Researched from guide pages checked on Nov 21, 2026, two days after launch. The whole story is covered, but sources still disagree on a few points, so the guide won't call anything fully safe yet.",
@@ -31,7 +32,7 @@ const dataset: GuideDataset = {
     { id: "port-gellhorn", label: "Port Gellhorn", visibleWhen: { completed: CH1_LAST } },
     { id: "kelly-county", label: "Kelly County", visibleWhen: { completed: CH1_LAST } },
   ],
-  records: [...stages, ...laterStages, ...allStory, ...chapter2Records, ...side345, ...laterPrep, ...tryThisRecords, ...tryThisRecords2, ...challengeIdeas, ...pastimes, ...completionRecords(storyByName)],
+  records: [...stages, ...laterStages, ...allStory, ...chapter2Records, ...side12, ...side345, ...laterPrep, ...tryThisRecords, ...tryThisRecords2, ...challengeIdeas, ...pastimes, ...completionRecords(storyByName)],
 };
 
 export function loadGuideDataset(): GuideDataset {
