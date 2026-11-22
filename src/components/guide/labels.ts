@@ -74,4 +74,10 @@ export const TRY_THIS_TAGS: Record<string, string> = {
   police: "Police",
   hidden: "Hidden detail",
   idea: "Challenge",
+  sport: "Sport",
+  outdoors: "Outdoors",
+  nightlife: "Nightlife",
+  style: "Style",
+  fitness: "Fitness",
+  games: "Games",
 };
