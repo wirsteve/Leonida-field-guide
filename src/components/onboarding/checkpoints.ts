@@ -39,3 +39,18 @@ export const CHECKPOINTS: Checkpoint[] = [
 ];
 // No later-chapter checkpoints: listing them would reveal how many chapters the
 // game has. Players further along type the last mission they finished instead.
+
+/**
+ * Catch-up checkpoints, reached only through a direct link (`/catch-up?to=<id>`)
+ * sent to a player who reported their progress. They're never listed in the UI,
+ * so they can't reveal what comes later. Ids are opaque.
+ */
+export const LINK_CHECKPOINTS: Checkpoint[] = [
+  {
+    id: "cp-214",
+    label: "Caught up to where you told me",
+    detail: "Your latest story progress.",
+    through: "story-214",
+    storyIds: [...CHECKPOINTS[0].storyIds, "story-213", "story-214"],
+  },
+];

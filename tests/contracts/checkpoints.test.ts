@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Requirement } from "@/contracts";
 import { loadGuideDataset } from "@/content/guide";
-import { CHECKPOINTS } from "@/components/onboarding/checkpoints";
+import { CHECKPOINTS, LINK_CHECKPOINTS } from "@/components/onboarding/checkpoints";
 
 const dataset = loadGuideDataset();
 const story = new Map(dataset.records.filter((r) => r.kind === "story-mission").map((r) => [r.id, r]));
@@ -25,19 +25,19 @@ function prerequisites(id: string): Set<string> {
 }
 
 describe("onboarding checkpoints", () => {
-  it.each(CHECKPOINTS)("$id lists exactly the story missions required through its milestone", (checkpoint) => {
+  it.each([...CHECKPOINTS, ...LINK_CHECKPOINTS])("$id lists exactly the story missions required through its milestone", (checkpoint) => {
     expect(story.has(checkpoint.through)).toBe(true);
     expect(new Set(checkpoint.storyIds)).toEqual(prerequisites(checkpoint.through));
   });
 
   it("never mentions a chapter beyond the first (no chapter-count leak)", () => {
-    for (const c of CHECKPOINTS) {
+    for (const c of [...CHECKPOINTS, ...LINK_CHECKPOINTS]) {
       for (const m of `${c.label} ${c.detail}`.matchAll(/chapter\s+(\d+)/gi)) expect(Number(m[1])).toBeLessThanOrEqual(2);
     }
   });
 
   it("uses only opaque ids and spoiler-lint-clean copy", () => {
-    for (const c of CHECKPOINTS) {
+    for (const c of [...CHECKPOINTS, ...LINK_CHECKPOINTS]) {
       for (const id of c.storyIds) expect(id).toMatch(/^story-\d+$/);
       for (const title of [...story.values()].map((r) => r.public.name.toLowerCase()).filter((n) => n.length > 4)) {
         expect(`${c.label} ${c.detail}`.toLowerCase()).not.toContain(title);
