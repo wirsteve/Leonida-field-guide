@@ -9,6 +9,45 @@ import { adviseMoney } from "../../engine/money-advice";
 import { rankRecommendations } from "../../engine/recommendation-priority";
 import { assessReadiness } from "../../engine/readiness-policy";
 
+/** Chapter a record belongs to: authored `chapter`, else derived from its sequence (2xx = Chapter 2). */
+function chapterOf(record: GuideDataset["records"][number]): number | null {
+  if (record.chapter) return record.chapter;
+  return typeof record.sequence === "number" ? Math.floor(record.sequence / 100) : null;
+}
+
+/**
+ * Progress the player has necessarily made, even if they didn't tick it.
+ * A chapter is over once its last story mission, or any later one, is done.
+ * Every story mission in a finished chapter is required to leave it, and so
+ * are its "before advancing" requirements (such as a cash goal). Only
+ * earlier-chapter records are ever added, so this can't disclose anything.
+ * The persisted state is untouched.
+ */
+export function withImpliedProgress(dataset: GuideDataset, snapshot: ProgressSnapshot): ProgressSnapshot {
+  const story = dataset.records.filter((r) => r.kind === "story-mission" && chapterOf(r) !== null);
+  const done = new Set(snapshot.completed);
+  const lastOf = new Map<number, { id: string; sequence: number }>();
+  for (const r of story) {
+    const c = chapterOf(r)!;
+    const seq = r.sequence ?? 0;
+    if (!lastOf.has(c) || seq > lastOf.get(c)!.sequence) lastOf.set(c, { id: r.id, sequence: seq });
+  }
+  let finished = 0;
+  for (const r of story) if (done.has(r.id)) finished = Math.max(finished, chapterOf(r)! - 1);
+  for (const [c, last] of lastOf) if (done.has(last.id)) finished = Math.max(finished, c);
+  if (finished === 0) return snapshot;
+  const implied = dataset.records.filter((r) => {
+    const c = chapterOf(r);
+    if (c === null || c > finished || done.has(r.id)) return false;
+    if (r.kind === "story-mission") return true;
+    const gate = r.public.timing === "before-advancing" &&
+      (r.public.tags.includes("prepare") || r.public.tags.some((t) => t.startsWith("cash-goal:")));
+    return gate;
+  });
+  if (implied.length === 0) return snapshot;
+  return { ...snapshot, completed: [...snapshot.completed, ...implied.map((r) => r.id)] };
+}
+
 export function currentStage(entries: ReturnType<typeof eligibleGuide>["entries"]) {
   const stages = entries.flatMap(({ record, verified, projected }) => {
     if (record.kind !== "stage" || !("editorial" in record) || !record.chapter ||
@@ -69,22 +108,36 @@ function toRecommendation(record: PublicGuideRecord): Recommendation {
   };
 }
 
-export function evaluateGuide(dataset: GuideDataset, snapshot: ProgressSnapshot): GuideEvaluation {
+export function evaluateGuide(dataset: GuideDataset, reported: ProgressSnapshot): GuideEvaluation {
+  const snapshot = withImpliedProgress(dataset, reported);
   const { entries, areas } = eligibleGuide(dataset, snapshot);
   const stage = currentStage(entries);
   const records = entries.filter(({ projected }) => projected.kind !== "stage").map(({ projected }) => projected);
   const outstanding = entries.filter(({ projected }) => projected.kind !== "stage" && isOutstanding(projected));
-  outstanding.sort((left, right) => (left.record.sequence ?? Infinity) - (right.record.sequence ?? Infinity));
+  // Leftovers from an earlier chapter stay available but never outrank the current one.
+  const stale = (record: GuideDataset["records"][number]) =>
+    stage !== null && record.kind !== "story-mission" && (chapterOf(record) ?? stage.chapter) < stage.chapter;
+  outstanding.sort((left, right) =>
+    Number(stale(left.record)) - Number(stale(right.record)) ||
+    (left.record.sequence ?? Infinity) - (right.record.sequence ?? Infinity));
+  const staleIds = new Set(outstanding.filter(({ record }) => stale(record)).map(({ record }) => record.id));
   const ranked = rankRecommendations(outstanding, ({ projected }) => {
     if (projected.lastChance) return "missable";
+    if (staleIds.has(projected.id)) return "optional";
     if (projected.timing === "before-advancing") return "preparation";
     if (projected.timing === "later-better") return "postponable";
     if (projected.timing === "now" || projected.kind === "story-mission") return "current-stage";
     if (projected.kind === "location") return "exploration";
     return "optional";
   }).map(({ projected }) => projected);
-  const queue = ranked.map(toRecommendation);
-  const blocking = ranked.filter(record => record.lastChance || record.timing === "before-advancing")
+  const queue = ranked.map((record) => {
+    const item = toRecommendation(record);
+    // Earlier-chapter leftovers are optional now, whatever their original timing.
+    return staleIds.has(record.id) && !record.lastChance && item.priority !== "wait"
+      ? { ...item, priority: "optional" as const }
+      : item;
+  });
+  const blocking = ranked.filter(record => record.lastChance || (record.timing === "before-advancing" && !staleIds.has(record.id)))
     .map(({ id, name, lastChance }) => ({ recordId: id, name, lastChance }));
   const verification = readinessCoverage(entries, stage?.verification);
   const decision = assessReadiness(

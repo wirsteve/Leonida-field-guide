@@ -4,7 +4,7 @@ import type { CheckRequest, GuideDataset, IdentifyRequest, IdentifyResponse, Mis
 import { eligibleGuide, hasVerifiedEvidence, isOutstanding } from "../../engine/eligibility";
 import { assessReadiness } from "../../engine/readiness-policy";
 import { requiredCompletions } from "../../engine/requirements";
-import { readinessCoverage } from "./evaluate";
+import { readinessCoverage, withImpliedProgress } from "./evaluate";
 
 function normalize(text: string): string {
   return text.normalize("NFKC").trim().replace(/\s+/g, " ").toLowerCase();
@@ -30,7 +30,7 @@ function missions(entries: ReturnType<typeof eligibleGuide>["entries"]) {
 
 export function suggestMissions(dataset: GuideDataset, { snapshot, query, limit = 8 }: SuggestRequest): SuggestResponse {
   const search = normalize(query);
-  const suggestions = missions(eligibleGuide(dataset, snapshot).entries)
+  const suggestions = missions(eligibleGuide(dataset, withImpliedProgress(dataset, snapshot)).entries)
     .filter(({ projected }) => isOutstanding(projected) &&
       (!search || names(projected).some(name => name.startsWith(search))))
     .slice(0, limit)
@@ -68,7 +68,7 @@ export function identifyMission(dataset: GuideDataset, { query }: IdentifyReques
 
 export function checkMission(dataset: GuideDataset, snapshot: ProgressSnapshot,
   { query, recordId }: Omit<CheckRequest, "snapshot">): MissionCheckResult {
-  const { entries, expiryTriggers } = eligibleGuide(dataset, snapshot);
+  const { entries, expiryTriggers } = eligibleGuide(dataset, withImpliedProgress(dataset, snapshot));
   const available = missions(entries).filter(({ projected }) => isOutstanding(projected));
   const match = recordId ? available.find(({ record }) => record.id === recordId)
     : query ? uniqueMatch(available, query) : undefined;
