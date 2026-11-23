@@ -24,7 +24,7 @@ const storyByName = new Map(
 );
 
 const dataset: GuideDataset = {
-  contentVersion: "2026.11.22-full.3",
+  contentVersion: "2026.11.23-full.4",
   generatedOn: "2026-11-21",
   coverageNote:
     "Researched from guide pages checked on Nov 21, 2026, two days after launch. The whole story is covered, but sources still disagree on a few points, so the guide won't call anything fully safe yet.",

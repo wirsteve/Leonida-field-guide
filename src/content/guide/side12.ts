@@ -197,20 +197,28 @@ export const side12: GuideRecord[] = [
   rec({
     id: "side-missing-tourists",
     seq: 213.66,
-    visibleWhen: done(CH1_LAST),
+    // Copy points at a contact met mid-chapter, so show it only once he's known.
+    visibleWhen: done(CH1_LAST, "story-207"),
     confidence: "low",
     verification: "partial",
     evidence: [
       cite(GB("missions/overnight-charges"), "Tip: the missing posters in the motel reception add 'Gellhorn's Missing Tourists' to the map."),
       cite(GB_RE, "User-submitted clue entries around Port Gellhorn."),
+      cite(src("https://holdtoreset.com/gta-6-gellhorns-missing-tourists-guide/", "Hold To Reset", "GTA 6 Gellhorn's Missing Tourists Guide"), "Posters in the motel reception and around town start it; three victims."),
+      cite(src("https://outputlag.com/guides/gta-6-missing-persons-mission/", "Output Lag", "GTA 6 Missing Persons: All 3 Bodies"), "Warehouse across from Moses's shop holds photos leading to three bodies."),
     ],
     notes: "Ending details, victims' locations and the killer's name conflict across snippet sites. No cash reward reported.",
     pub: {
       name: "Gellhorn's Missing Tourists",
       aliases: ["missing posters", "missing persons"],
       summary: "Missing-person posters in the motel reception start a quiet investigation around Port Gellhorn.",
-      guidance: "There's no marker. Follow the clues around town. Look at the posters before you move out of the motel, in case they're gone later.",
-      tips: ["It pays no cash. It's for the story it tells."],
+      guidance: "The posters only start it. There are several around town, but you don't need to collect them. The trail leads to a run-down warehouse across from Moses's garage, and photos inside point to three places around Port Gellhorn.",
+      tips: [
+        "To get into the warehouse, crawl through the hole on its right side.",
+        "There's no marker, so use the photos: match what's in each one to a spot in town.",
+        "Look at the posters before you move out of the motel, in case they're gone later.",
+        "It pays no cash. It's for the story it tells.",
+      ],
       area: "port-gellhorn",
       estimatedMinutes: { min: 30, max: 60 },
     },
